@@ -9,20 +9,31 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "lint:fast": "oxlint",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "newsletter": "tsx scripts/generate-newsletter.ts",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
     "@iconify-json/lucide": "^1.2.71",
     "@iconify-json/simple-icons": "^1.2.55",
     "@nuxt/ui": "^4.1.0",
-    "nuxt": "^4.2.0"
+    "nuxt": "^4.2.0",
+    "tsx": "^4.20.6",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
     "@nuxt/eslint": "^1.9.0",
+    "@vitest/ui": "^4.0.8",
     "eslint": "^9.38.0",
     "eslint-plugin-oxlint": "^1.26.0",
+    "msw": "^2.12.1",
     "oxlint": "^1.26.0",
     "typescript": "^5.9.3",
+    "vitest": "^4.0.8",
     "vue-tsc": "^3.1.2"
   },
   "packageManager": "pnpm@10.19.0"
