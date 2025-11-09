@@ -147,6 +147,41 @@ describe('Newsletter Generation', (): void => {
     })
   })
 
+  it('should fetch from DEV.to resource adapter', async (): Promise<void> => {
+    server.use(...happyPathScenario)
+
+    const { DevToResource } = await import('../scripts/core/resources/adapters/devto')
+
+    const resource = new DevToResource({
+      id: 'test-devto',
+      kind: 'json',
+      url: 'https://dev.to/api/articles?tag=vue&top=7&per_page=20',
+      tag: 'DEV.to #vue',
+      limit: 10
+    })
+
+    const items = await resource.fetch()
+
+    expect(items).toBeDefined()
+    expect(Array.isArray(items)).toBe(true)
+    expect(items.length).toBeGreaterThan(0)
+    expect(items.length).toBeLessThanOrEqual(10)
+
+    // Verify sorting by reactions (descending)
+    for (let i = 0; i < items.length - 1; i++) {
+      expect(items[i].score ?? 0).toBeGreaterThanOrEqual(items[i + 1].score ?? 0)
+    }
+
+    items.forEach((item): void => {
+      expect(item).toHaveProperty('title')
+      expect(item).toHaveProperty('url')
+      expect(item.source).toContain('DEV.to')
+      expect(item).toHaveProperty('score') // reactions
+      expect(item).toHaveProperty('comments')
+      expect(item).toHaveProperty('description') // tags formatted
+    })
+  })
+
   it('should use ResourceRegistry to collect from multiple sources', async (): Promise<void> => {
     server.use(...happyPathScenario)
 
@@ -173,6 +208,28 @@ describe('Newsletter Generation', (): void => {
     expect(collected).toHaveProperty('reddit-test')
     expect(Array.isArray(collected['github-test'])).toBe(true)
     expect(Array.isArray(collected['reddit-test'])).toBe(true)
+  })
+
+  it('should register DevToResource via registry with devto- ID prefix', async (): Promise<void> => {
+    server.use(...happyPathScenario)
+
+    const { ResourceRegistry } = await import('../scripts/core/resources/registry')
+
+    const registry = new ResourceRegistry()
+    registry.register({
+      id: 'devto-vue',
+      kind: 'json',
+      url: 'https://dev.to/api/articles?tag=vue&top=7&per_page=20',
+      tag: 'DEV.to #vue',
+      limit: 10
+    })
+
+    const collected = await registry.collect()
+
+    expect(collected).toHaveProperty('devto-vue')
+    expect(Array.isArray(collected['devto-vue'])).toBe(true)
+    expect(collected['devto-vue'].length).toBeGreaterThan(0)
+    expect(collected['devto-vue'][0].source).toContain('DEV.to')
   })
 
   it('should validate newsletter content structure', async (): Promise<void> => {
@@ -239,5 +296,46 @@ More content`
     expect(formatted).toContain('January')
     expect(formatted).toContain('15')
     expect(formatted).toContain('2025')
+  })
+
+  it('should render articles section from DEV.to sources', async (): Promise<void> => {
+    server.use(...happyPathScenario)
+
+    const { ResourceRegistry } = await import('../scripts/core/resources/registry')
+
+    // First verify DEV.to sources are collected properly
+    const registry = new ResourceRegistry()
+    registry.register({
+      id: 'devto-vue',
+      kind: 'json',
+      url: 'https://dev.to/api/articles?tag=vue&top=7&per_page=20',
+      tag: 'DEV.to #vue',
+      limit: 10
+    })
+    registry.register({
+      id: 'devto-nuxt',
+      kind: 'json',
+      url: 'https://dev.to/api/articles?tag=nuxt&top=7&per_page=20',
+      tag: 'DEV.to #nuxt',
+      limit: 10
+    })
+
+    const collected = await registry.collect()
+
+    // Verify both sources collected articles
+    expect(collected['devto-vue']).toBeDefined()
+    expect(collected['devto-nuxt']).toBeDefined()
+    expect(collected['devto-vue'].length).toBeGreaterThan(0)
+    expect(collected['devto-nuxt'].length).toBeGreaterThan(0)
+
+    // Verify articles have expected properties
+    const articles = [...collected['devto-vue'], ...collected['devto-nuxt']]
+    articles.forEach((article): void => {
+      expect(article).toHaveProperty('title')
+      expect(article).toHaveProperty('url')
+      expect(article).toHaveProperty('score')
+      expect(article).toHaveProperty('comments')
+      expect(article.source).toContain('DEV.to')
+    })
   })
 })
