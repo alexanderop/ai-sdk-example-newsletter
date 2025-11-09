@@ -31,9 +31,9 @@ export function createRSSFeedXML(options: RSSFeedOptions = {}): string {
     daysOld = 0
   } = options
 
-  const items = Array.from({ length: itemCount }, () => createRSSItem(daysOld))
+  const items = Array.from({ length: itemCount }, (): RSSItem => createRSSItem(daysOld))
 
-  const itemsXML = items.map(item => `
+  const itemsXML = items.map((item): string => `
     <item>
       <title><![CDATA[${item.title}]]></title>
       <link>${item.link}</link>

@@ -4,7 +4,7 @@ import { createRSSFeedXML } from '../../factories/rss-feed.factory'
 import { createHNResponse } from '../../factories/hn-stories.factory'
 
 export const partialFailureScenario = [
-  http.post('https://api.anthropic.com/v1/messages', async ({ request }) => {
+  http.post('https://api.anthropic.com/v1/messages', async ({ request }): Promise<HttpResponse> => {
     const body = await request.json() as { system?: string }
     const systemPrompt = body.system || ''
 
@@ -43,20 +43,20 @@ export const partialFailureScenario = [
     }))
   }),
 
-  http.get('https://blog.vuejs.org/feed.rss', () => {
+  http.get('https://blog.vuejs.org/feed.rss', (): Response => {
     return new HttpResponse(createRSSFeedXML({ itemCount: 3 }), {
       headers: { 'Content-Type': 'application/xml' }
     })
   }),
 
-  http.get('https://www.reddit.com/r/vuejs.rss', () => {
+  http.get('https://www.reddit.com/r/vuejs.rss', (): HttpResponse => {
     return HttpResponse.json(
       { error: 'Service Unavailable' },
       { status: 503 }
     )
   }),
 
-  http.get('http://hn.algolia.com/api/v1/search', () => {
+  http.get('https://hn.algolia.com/api/v1/search', (): HttpResponse => {
     return HttpResponse.json(createHNResponse({ hitCount: 4 }))
   })
 ]

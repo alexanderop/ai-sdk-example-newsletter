@@ -4,8 +4,7 @@ import { generateNewsletter } from './pipelines/newsletter.js'
 import { AnthropicClient } from './core/llm/providers/anthropic.js'
 import { OpenAIClient } from './core/llm/providers/openai.js'
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs'
-import { join, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 import type { LLMClient } from './core/llm/LLMClient.js'
 
 config()
@@ -16,11 +15,8 @@ function llmFromEnv(): LLMClient {
     if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY missing')
     return new OpenAIClient({ apiKey: process.env.OPENAI_API_KEY, model: process.env.OPENAI_MODEL })
   }
-  if (provider === 'anthropic') {
-    if (!process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY missing')
-    return new AnthropicClient({ apiKey: process.env.ANTHROPIC_API_KEY, model: process.env.ANTHROPIC_MODEL })
-  }
-  throw new Error(`Unknown LLM_PROVIDER: ${provider}. Must be 'openai' or 'anthropic'`)
+  if (!process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY missing')
+  return new AnthropicClient({ apiKey: process.env.ANTHROPIC_API_KEY, model: process.env.ANTHROPIC_MODEL })
 }
 
 function save(text: string, filename?: string): string {
@@ -32,17 +28,13 @@ function save(text: string, filename?: string): string {
   return path
 }
 
-const scriptPath = process.argv[1] ? resolve(process.argv[1]) : undefined
-const modulePath = resolve(fileURLToPath(import.meta.url))
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const start = Date.now()
+  const llm = llmFromEnv()
+  console.log(`🤖 Using ${llm.name} provider (${llm.model})`)
 
-if (scriptPath && scriptPath === modulePath) {
-  (async (): Promise<void> => {
-    const start = Date.now()
-    const llm = llmFromEnv()
-    console.log(`🤖 Using ${llm.name} provider (${llm.model})`)
-
-    try {
-      const { text, usage } = await generateNewsletter(llm)
+  generateNewsletter(llm)
+    .then(({ text, usage }): void => {
       const path = save(text)
       console.log(`✅ Wrote ${path}`)
       console.log(`📊 Tokens in/out: ${usage.input_tokens}/${usage.output_tokens}`)
@@ -53,9 +45,9 @@ if (scriptPath && scriptPath === modulePath) {
         console.log(`💾 Cache created: ${usage.cache_creation_input_tokens} tokens`)
       }
       console.log(`⏱️  ${((Date.now() - start) / 1000).toFixed(1)}s`)
-    } catch (err) {
+    })
+    .catch((err): void => {
       console.error('❌', err?.message ?? err)
       process.exit(1)
-    }
-  })()
+    })
 }

@@ -6,7 +6,7 @@ import { createHNResponse } from '../factories/hn-stories.factory'
 
 export const handlers = [
   // Claude API - conditional responses based on system prompt
-  http.post('https://api.anthropic.com/v1/messages', async ({ request }) => {
+  http.post('https://api.anthropic.com/v1/messages', async ({ request }): Promise<HttpResponse> => {
     const body = await request.json() as { system?: string }
     const systemPrompt = body.system || ''
 
@@ -86,7 +86,7 @@ Generated on: ${new Date().toISOString()}
   }),
 
   // External data sources
-  http.get('https://blog.vuejs.org/feed.rss', () => {
+  http.get('https://blog.vuejs.org/feed.rss', (): Response => {
     return new HttpResponse(createRSSFeedXML({
       title: 'Vue.js Blog',
       link: 'https://blog.vuejs.org',
@@ -96,7 +96,7 @@ Generated on: ${new Date().toISOString()}
     })
   }),
 
-  http.get('https://nuxt.com/blog/rss.xml', () => {
+  http.get('https://nuxt.com/blog/rss.xml', (): Response => {
     return new HttpResponse(createRSSFeedXML({
       title: 'Nuxt Blog',
       link: 'https://nuxt.com/blog',
@@ -106,7 +106,7 @@ Generated on: ${new Date().toISOString()}
     })
   }),
 
-  http.get('https://www.reddit.com/r/vuejs.rss', () => {
+  http.get('https://www.reddit.com/r/vuejs.rss', (): Response => {
     return new HttpResponse(createRedditFeedXML({
       itemCount: 5,
       subreddit: 'vuejs',
@@ -116,24 +116,24 @@ Generated on: ${new Date().toISOString()}
     })
   }),
 
-  http.get('https://www.reddit.com/r/Nuxt.rss', () => {
+  http.get('https://www.reddit.com/r/Nuxt.rss', (): Response => {
     return new HttpResponse(createRedditFeedXML({
       itemCount: 3,
       subreddit: 'Nuxt',
       daysOld: 0
     }), {
-      headers: { 'Content-Type': 'application/atom+xml; charset=UTF-8' }
+      headers: { 'Content-Type': 'application/xml; charset=UTF-8' }
     })
   }),
 
-  http.get('http://hn.algolia.com/api/v1/search', () => {
+  http.get('https://hn.algolia.com/api/v1/search', (): HttpResponse => {
     return HttpResponse.json(createHNResponse({
       hitCount: 4
     }))
   }),
 
   // GitHub API - Search repositories
-  http.get('https://api.github.com/search/repositories', ({ request }) => {
+  http.get('https://api.github.com/search/repositories', ({ request }): HttpResponse => {
     const url = new URL(request.url)
     const query = url.searchParams.get('q')
 

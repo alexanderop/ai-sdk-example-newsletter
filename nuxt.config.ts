@@ -17,6 +17,22 @@ export default defineNuxtConfig({
 
   compatibilityDate: '2025-01-15',
 
+  typescript: {
+    strict: true,
+    typeCheck: true,
+    tsConfig: {
+      compilerOptions: {
+        noPropertyAccessFromIndexSignature: true,
+        exactOptionalPropertyTypes: true,
+        noFallthroughCasesInSwitch: true,
+        noUnusedLocals: true,
+        noUnusedParameters: true,
+        allowUnusedLabels: false,
+        allowUnreachableCode: false
+      }
+    }
+  },
+
   eslint: {
     config: {
       stylistic: {

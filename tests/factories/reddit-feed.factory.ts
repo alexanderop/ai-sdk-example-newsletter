@@ -18,7 +18,7 @@ export function createRedditFeedXML(options: RedditFeedOptions = {}): string {
     subreddit = 'vuejs'
   } = options
 
-  const entries = Array.from({ length: itemCount }, () => {
+  const entries = Array.from({ length: itemCount }, (): { title: string, link: string, updated: string, authorName: string, authorUri: string, content: string } => {
     const updated = new Date()
     updated.setDate(updated.getDate() - daysOld)
 
@@ -36,7 +36,7 @@ export function createRedditFeedXML(options: RedditFeedOptions = {}): string {
     }
   })
 
-  const entriesXML = entries.map(entry => `
+  const entriesXML = entries.map((entry): string => `
     <entry>
       <author>
         <name>${entry.authorName}</name>
