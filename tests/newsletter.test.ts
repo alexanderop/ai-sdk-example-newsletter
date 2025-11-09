@@ -1,8 +1,26 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { server } from './setup'
 import { happyPathScenario } from './mocks/scenarios/happy-path'
+import { existsSync, unlinkSync } from 'node:fs'
+import { join } from 'node:path'
 
 describe('Newsletter Generation', () => {
+  const testOutputPath = join(process.cwd(), 'newsletters', 'test-output.md')
+
+  beforeEach(() => {
+    // Clean up test file if it exists
+    if (existsSync(testOutputPath)) {
+      unlinkSync(testOutputPath)
+    }
+  })
+
+  afterEach(() => {
+    // Clean up test file after test
+    if (existsSync(testOutputPath)) {
+      unlinkSync(testOutputPath)
+    }
+  })
+
   it('should generate a newsletter', async () => {
     const { generateNewsletter } = await import('../scripts/generate-newsletter')
 
@@ -20,5 +38,15 @@ describe('Newsletter Generation', () => {
     expect(result).toContain('# Vue.js Weekly Newsletter')
     expect(result).toContain('## 🎯 Official Updates')
     expect(result).toContain('## 💬 Community Highlights')
+  })
+
+  it('should write newsletter to file', async () => {
+    server.use(...happyPathScenario)
+
+    const { generateNewsletterToFile } = await import('../scripts/generate-newsletter')
+    const filePath = await generateNewsletterToFile('test-output.md')
+
+    expect(existsSync(filePath)).toBe(true)
+    expect(filePath).toContain('newsletters/test-output.md')
   })
 })
