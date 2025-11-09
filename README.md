@@ -1,109 +1,147 @@
-# Nuxt Starter Template
+# AI-Powered Vue.js Newsletter Generator
 
 [![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
 [![Quality Gate](https://github.com/alexanderopalic/ai-sdk-example-newsletter/workflows/Quality%20Gate/badge.svg)](https://github.com/alexanderopalic/ai-sdk-example-newsletter/actions/workflows/ci.yml)
 [![PR Checks](https://github.com/alexanderopalic/ai-sdk-example-newsletter/workflows/PR%20Quality%20Checks/badge.svg)](https://github.com/alexanderopalic/ai-sdk-example-newsletter/actions/workflows/pr-checks.yml)
 
-Use this template to get started with [Nuxt UI](https://ui.nuxt.com) quickly.
+A Nuxt 4 application with an integrated Vue.js newsletter generator powered by the Anthropic Claude API. This project combines a standard Nuxt UI template with a CLI script that fetches real Vue.js community content from GitHub and generates weekly newsletters using AI.
 
-- [Live demo](https://starter-template.nuxt.dev/)
-- [Documentation](https://ui.nuxt.com/docs/getting-started/installation/nuxt)
+## Features
 
-<a href="https://starter-template.nuxt.dev/" target="_blank">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png">
-    <img alt="Nuxt Starter Template" src="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png">
-  </picture>
-</a>
+- 🤖 **AI-Powered Content Generation** - Uses Claude Haiku 4.5 to create engaging newsletters
+- 📊 **Real Data Sources** - Fetches actual Vue.js repositories and trending projects from GitHub API
+- 💰 **Cost-Optimized** - Implements prompt caching to reduce API costs by ~90%
+- 🔄 **Reliable** - Automatic retry with exponential backoff for transient failures
+- ✅ **Well-Tested** - Comprehensive test suite using MSW for deterministic HTTP mocking
+- 📈 **Token Tracking** - Real-time monitoring of API usage and cost estimation
 
-> The starter template for Vue is on https://github.com/nuxt-ui-templates/starter-vue.
+## Prerequisites
 
-## Quick Start
-
-```bash [Terminal]
-npm create nuxt@latest -- -t github:nuxt-ui-templates/starter
-```
-
-## Deploy your own
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-name=starter&repository-url=https%3A%2F%2Fgithub.com%2Fnuxt-ui-templates%2Fstarter&demo-image=https%3A%2F%2Fui.nuxt.com%2Fassets%2Ftemplates%2Fnuxt%2Fstarter-dark.png&demo-url=https%3A%2F%2Fstarter-template.nuxt.dev%2F&demo-title=Nuxt%20Starter%20Template&demo-description=A%20minimal%20template%20to%20get%20started%20with%20Nuxt%20UI.)
+- Node.js (latest LTS recommended)
+- pnpm 10.19.0 (locked via `packageManager` field)
+- Anthropic API key
 
 ## Setup
 
-Make sure to install the dependencies:
-
-```bash
-pnpm install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-pnpm dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-pnpm build
-```
-
-Locally preview production build:
-
-```bash
-pnpm preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
-
-## Vue.js Newsletter Generator
-
-This project includes an automated Vue.js newsletter generator powered by Claude Agent SDK.
-
-### Setup
-
 1. Install dependencies:
+
 ```bash
 pnpm install
 ```
 
-2. Set up your Anthropic API key:
+2. Configure your environment:
+
 ```bash
 cp .env.example .env
-# Edit .env and add your API key
+# Edit .env and add your ANTHROPIC_API_KEY
 ```
 
-### Usage
+## Available Commands
 
-Generate the weekly newsletter:
+### Development
 
 ```bash
-pnpm run newsletter
+pnpm dev              # Start development server on localhost:3000
+pnpm build            # Build for production
+pnpm preview          # Preview production build locally
+pnpm typecheck        # Run TypeScript type checking
 ```
 
-This will create a file in `newsletters/YYYY-MM-DD-vue-weekly.md` with curated Vue.js content.
+### Code Quality
+
+```bash
+pnpm lint             # Run ESLint (comprehensive)
+pnpm lint:fast        # Run oxlint (fast linting)
+pnpm lint:type-aware  # Run oxlint with type checking
+```
 
 ### Testing
 
-Run tests with mocked API calls:
+```bash
+pnpm test             # Run Vitest tests once
+pnpm test:watch       # Run tests in watch mode
+pnpm test:ui          # Open Vitest UI
+```
+
+## Newsletter Generator
+
+### Quick Start
+
+Generate a weekly Vue.js newsletter:
 
 ```bash
-pnpm test           # Run once
-pnpm test:watch     # Watch mode
-pnpm test:ui        # Visual UI
+pnpm newsletter
 ```
+
+This creates a file at `newsletters/YYYY-MM-DD-vue-weekly.md` with curated Vue.js content.
 
 ### How It Works
 
-The newsletter generator uses Claude Agent SDK to:
-1. Spawn 3 parallel subagents (RSS, Reddit, Hacker News)
-2. Gather Vue.js content from the last 7 days
-3. Synthesize findings into a structured newsletter
-4. Save as Markdown file
+The newsletter generator (`scripts/generate-newsletter.ts`) follows this workflow:
 
-All tests use MSW (Mock Service Worker) to mock HTTP requests for fast, deterministic testing.
+1. **Environment Validation** - Verifies `.env` exists and `ANTHROPIC_API_KEY` is configured
+2. **Data Collection** - Fetches real data from GitHub API in parallel:
+   - Recent Vue.js repositories
+   - Trending Vue/TypeScript projects
+3. **AI Generation** - Sends collected data to Claude Haiku 4.5 with structured prompts
+4. **Content Validation** - Ensures newsletter meets quality standards
+5. **Output** - Saves formatted markdown to `newsletters/` directory
+
+### Key Features
+
+- **Real Data, No Hallucinations** - Fetches actual GitHub data before AI generation
+- **Prompt Caching** - System prompts are cached, reducing costs by ~90% on repeated runs
+- **Retry Logic** - Exponential backoff (3 retries, 1s initial delay) handles transient API failures
+- **Token Tracking** - Logs token usage and cost estimation for each run
+- **Error Handling** - Graceful degradation for API failures and rate limits
+
+### Testing
+
+The project uses **MSW (Mock Service Worker)** for deterministic HTTP testing:
+
+- `tests/setup.ts` - Configures MSW server globally
+- `tests/mocks/handlers.ts` - Defines mock responses for Claude API, GitHub API
+- `tests/factories/` - Test data factories using `@faker-js/faker`
+- `tests/schemas/` - Zod schemas for response validation
+- `tests/mocks/scenarios/` - Pre-configured test scenarios
+
+All HTTP requests during tests are intercepted, ensuring:
+- No actual API calls
+- Fast, deterministic test execution
+- API key validation works with test key
+
+## Architecture
+
+### Dual-Purpose Structure
+
+The project contains two distinct components:
+
+1. **Nuxt Web Application** (`/app`, `/pages`, `/components`)
+   - Standard Nuxt 4 application using Nuxt UI
+   - Pre-rendered homepage with template components
+   - Uses 1tbs brace style and no comma dangles per ESLint config
+
+2. **Newsletter Generator** (`/scripts`)
+   - Standalone TypeScript script executed via `tsx`
+   - Uses Anthropic Claude API for content generation
+   - Fetches real data from GitHub API
+   - Outputs markdown files to `/newsletters` directory
+
+## Key Dependencies
+
+- `@anthropic-ai/sdk` - Claude API client for newsletter generation
+- `@nuxt/ui` - Nuxt UI component library
+- `msw` - HTTP mocking for tests
+- `vitest` - Test runner with v8 coverage provider
+- `tsx` - TypeScript execution for scripts
+- `zod` - Schema validation in tests
+
+## Contributing
+
+This project uses strict code quality standards:
+- TypeScript for type safety
+- ESLint with type-aware rules
+- Vitest for comprehensive test coverage
+- MSW for reliable HTTP mocking
+
+Check out the [CLAUDE.md](./CLAUDE.md) file for detailed architecture documentation and development guidance.
