@@ -1,6 +1,8 @@
 # Nuxt Starter Template
 
 [![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
+[![Quality Gate](https://github.com/alexanderopalic/ai-sdk-example-newsletter/workflows/Quality%20Gate/badge.svg)](https://github.com/alexanderopalic/ai-sdk-example-newsletter/actions/workflows/ci.yml)
+[![PR Checks](https://github.com/alexanderopalic/ai-sdk-example-newsletter/workflows/PR%20Quality%20Checks/badge.svg)](https://github.com/alexanderopalic/ai-sdk-example-newsletter/actions/workflows/pr-checks.yml)
 
 Use this template to get started with [Nuxt UI](https://ui.nuxt.com) quickly.
 
@@ -58,3 +60,50 @@ pnpm preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+## Vue.js Newsletter Generator
+
+This project includes an automated Vue.js newsletter generator powered by Claude Agent SDK.
+
+### Setup
+
+1. Install dependencies:
+```bash
+pnpm install
+```
+
+2. Set up your Anthropic API key:
+```bash
+cp .env.example .env
+# Edit .env and add your API key
+```
+
+### Usage
+
+Generate the weekly newsletter:
+
+```bash
+pnpm run newsletter
+```
+
+This will create a file in `newsletters/YYYY-MM-DD-vue-weekly.md` with curated Vue.js content.
+
+### Testing
+
+Run tests with mocked API calls:
+
+```bash
+pnpm test           # Run once
+pnpm test:watch     # Watch mode
+pnpm test:ui        # Visual UI
+```
+
+### How It Works
+
+The newsletter generator uses Claude Agent SDK to:
+1. Spawn 3 parallel subagents (RSS, Reddit, Hacker News)
+2. Gather Vue.js content from the last 7 days
+3. Synthesize findings into a structured newsletter
+4. Save as Markdown file
+
+All tests use MSW (Mock Service Worker) to mock HTTP requests for fast, deterministic testing.

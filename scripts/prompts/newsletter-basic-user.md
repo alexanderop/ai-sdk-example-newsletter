@@ -1,0 +1,1 @@
+Create this week's Vue.js Weekly Newsletter. Include sections for Official Updates and Community Highlights. Structure the content with clear markdown formatting and make it informative and engaging for Vue.js developers.

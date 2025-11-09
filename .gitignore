@@ -13,6 +13,11 @@ node_modules
 logs
 *.log
 
+# Test coverage
+coverage/
+*.lcov
+.nyc_output
+
 # Misc
 .DS_Store
 .fleet
