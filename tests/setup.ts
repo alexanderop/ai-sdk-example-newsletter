@@ -42,7 +42,7 @@ The community has been active with discussions and contributions.`,
 }
 
 // Start server before all tests
-beforeAll(() => {
+beforeAll((): void => {
   // Set up test environment variable (for functions that check it)
   process.env.ANTHROPIC_API_KEY = 'test-api-key-for-testing'
 
@@ -50,11 +50,11 @@ beforeAll(() => {
 })
 
 // Reset handlers after each test
-afterEach(() => {
+afterEach((): void => {
   server.resetHandlers()
 })
 
 // Clean up after all tests
-afterAll(() => {
+afterAll((): void => {
   server.close()
 })

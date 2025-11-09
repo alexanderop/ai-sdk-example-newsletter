@@ -11,12 +11,12 @@ type HNHit = {
 }
 
 export class HNResource implements Resource {
-  id: string
+  public id: string
   private url: string
   private minScore: number
   private limit: number
 
-  constructor(cfg: ResourceConfig) {
+  public constructor(cfg: ResourceConfig) {
     this.id = cfg.id
     this.minScore = cfg.minScore ?? 20
     this.limit = cfg.limit ?? 10
@@ -29,11 +29,11 @@ export class HNResource implements Resource {
     }
   }
 
-  async fetch(): Promise<Item[]> {
+  public async fetch(): Promise<Item[]> {
     const data = await getJson<{ hits: HNHit[] }>(this.url)
     return data.hits
-      .filter(h => h.points >= this.minScore)
-      .map(h => ({
+      .filter((h): boolean => h.points >= this.minScore)
+      .map((h): Item => ({
         title: h.title,
         url: h.url ?? `https://news.ycombinator.com/item?id=${h.objectID}`,
         score: h.points,
@@ -41,7 +41,7 @@ export class HNResource implements Resource {
         date: new Date(h.created_at),
         source: 'Hacker News'
       }))
-      .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+      .sort((a, b): number => (b.score ?? 0) - (a.score ?? 0))
       .slice(0, this.limit)
   }
 }

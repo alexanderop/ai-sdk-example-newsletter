@@ -1,18 +1,18 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
-describe('API Key Validation', () => {
+describe('API Key Validation', (): void => {
   let originalAnthropicKey: string | undefined
   let originalOpenAIKey: string | undefined
   let originalProvider: string | undefined
 
-  beforeEach(() => {
+  beforeEach((): void => {
     // Save original environment variables
     originalAnthropicKey = process.env.ANTHROPIC_API_KEY
     originalOpenAIKey = process.env.OPENAI_API_KEY
     originalProvider = process.env.LLM_PROVIDER
   })
 
-  afterEach(() => {
+  afterEach((): void => {
     // Restore original environment variables
     if (originalAnthropicKey) {
       process.env.ANTHROPIC_API_KEY = originalAnthropicKey
@@ -31,25 +31,25 @@ describe('API Key Validation', () => {
     }
   })
 
-  it('should work with valid ANTHROPIC_API_KEY', async () => {
+  it('should work with valid ANTHROPIC_API_KEY', async (): Promise<void> => {
     process.env.ANTHROPIC_API_KEY = 'test-api-key-for-testing'
     delete process.env.LLM_PROVIDER // Default to Anthropic
 
     const { AnthropicClient } = await import('../scripts/core/llm/providers/anthropic')
 
-    expect(() => new AnthropicClient()).not.toThrow()
+    expect((): AnthropicClient => new AnthropicClient()).not.toThrow()
   })
 
-  it('should work with valid OPENAI_API_KEY when provider is openai', async () => {
+  it('should work with valid OPENAI_API_KEY when provider is openai', async (): Promise<void> => {
     process.env.OPENAI_API_KEY = 'test-openai-key'
     process.env.LLM_PROVIDER = 'openai'
 
     const { OpenAIClient } = await import('../scripts/core/llm/providers/openai')
 
-    expect(() => new OpenAIClient()).not.toThrow()
+    expect((): OpenAIClient => new OpenAIClient()).not.toThrow()
   })
 
-  it('should validate API key format', async () => {
+  it('should validate API key format', async (): Promise<void> => {
     const { isValidApiKey } = await import('../scripts/utils/validate')
 
     expect(isValidApiKey('sk-ant-api03-valid-key')).toBe(true)
@@ -59,7 +59,7 @@ describe('API Key Validation', () => {
     expect(isValidApiKey('')).toBe(false)
   })
 
-  it('should allow Anthropic client with injected API key', async () => {
+  it('should allow Anthropic client with injected API key', async (): Promise<void> => {
     const { AnthropicClient } = await import('../scripts/core/llm/providers/anthropic')
 
     const client = new AnthropicClient({
@@ -71,7 +71,7 @@ describe('API Key Validation', () => {
     expect(client.model).toBe('claude-haiku-4-5-20251001')
   })
 
-  it('should allow OpenAI client with injected API key', async () => {
+  it('should allow OpenAI client with injected API key', async (): Promise<void> => {
     const { OpenAIClient } = await import('../scripts/core/llm/providers/openai')
 
     const client = new OpenAIClient({

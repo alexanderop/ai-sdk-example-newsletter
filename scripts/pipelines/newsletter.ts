@@ -9,16 +9,16 @@ import { format } from '../utils/date.js'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-function renderSections(collected: Record<string, Item[]>) {
-  const news = (collected['github-news'] ?? []).map(i => `- [${i.title}](${i.url})`).join('\n') || '- No recent Vue.js news available'
-  const repos = (collected['github-news'] ?? []).map((r: Item, idx: number) =>
+function renderSections(collected: Record<string, Item[]>): { news: string, repos: string, reddit: string } {
+  const news = (collected['github-news'] ?? []).map((i): string => `- [${i.title}](${i.url})`).join('\n') || '- No recent Vue.js news available'
+  const repos = (collected['github-news'] ?? []).map((r: Item, idx: number): string =>
     `${idx + 1}. **[${r.title}](${r.url})** - ${r.description ?? 'No description'}${r.stars ? ` (⭐ ${r.stars.toLocaleString()})` : ''}`
   ).join('\n') || '- No trending repositories available'
 
   const reddit = [...(collected['reddit-vuejs'] ?? []), ...(collected['reddit-nuxt'] ?? [])]
-    .sort((a, b) => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0))
+    .sort((a, b): number => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0))
     .slice(0, 10)
-    .map((p: Item, idx: number) => {
+    .map((p: Item, idx: number): string => {
       const d = p.date ? p.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''
       return `${idx + 1}. **[${p.title}](${p.url})** - ${p.source}${d ? ` (${d})` : ''}`
     }).join('\n') || '- No significant community discussions this week'
@@ -26,7 +26,7 @@ function renderSections(collected: Record<string, Item[]>) {
   return { news, repos, reddit }
 }
 
-export async function generateNewsletter(llm: LLMClient) {
+export async function generateNewsletter(llm: LLMClient): Promise<{ text: string, usage: { input_tokens: number, output_tokens: number, cache_creation_input_tokens?: number, cache_read_input_tokens?: number } }> {
   // Load sources config
   const sourcesPath = join(__dirname, '../config/sources.json')
   const sources = JSON.parse(readFileSync(sourcesPath, 'utf-8')) as ResourceConfig[]

@@ -7,7 +7,7 @@ import { RSSResource } from './adapters/rss.js'
 export class ResourceRegistry {
   private resources: Resource[] = []
 
-  register(cfg: ResourceConfig): this {
+  public register(cfg: ResourceConfig): this {
     const r
       = cfg.kind === 'json' && cfg.id.startsWith('hn')
         ? new HNResource(cfg)
@@ -17,21 +17,21 @@ export class ResourceRegistry {
             ? new RSSResource(cfg)
             : cfg.kind === 'atom'
               ? new RedditResource(cfg)
-              : (() => { throw new Error(`Unknown kind ${cfg.kind}`) })()
+              : ((): never => { throw new Error(`Unknown kind ${cfg.kind}`) })()
 
     this.resources.push(r)
     return this
   }
 
-  add(resource: Resource): this {
+  public add(resource: Resource): this {
     this.resources.push(resource)
     return this
   }
 
-  async collect(): Promise<Record<string, Item[]>> {
+  public async collect(): Promise<Record<string, Item[]>> {
     const out: Record<string, Item[]> = {}
-    const results = await Promise.allSettled(this.resources.map(r => r.fetch()))
-    results.forEach((res, i) => {
+    const results = await Promise.allSettled(this.resources.map((r): Promise<Item[]> => r.fetch()))
+    results.forEach((res, i): void => {
       const id = this.resources[i].id
       out[id] = res.status === 'fulfilled' ? res.value : []
     })

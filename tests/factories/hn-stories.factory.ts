@@ -29,7 +29,7 @@ export function createHNResponse(options: HNResponseOptions = {}): HNSearchRespo
     minPoints = 20
   } = options
 
-  const hits = Array.from({ length: hitCount }, () => createHNStory(daysOld, minPoints))
+  const hits = Array.from({ length: hitCount }, (): HNStory => createHNStory(daysOld, minPoints))
 
   const response = {
     hits,

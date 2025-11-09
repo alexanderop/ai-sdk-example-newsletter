@@ -8,6 +8,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "oxlint && eslint .",
+    "lint:fix": "oxlint && eslint . --fix",
     "lint:fast": "oxlint",
     "lint:type-aware": "oxlint --type-aware",
     "typecheck": "nuxt typecheck",

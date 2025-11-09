@@ -5,22 +5,22 @@ import { partialFailureScenario } from './mocks/scenarios/partial-failure'
 import { existsSync, unlinkSync } from 'node:fs'
 import { join } from 'node:path'
 
-describe('Newsletter Generation', () => {
+describe('Newsletter Generation', (): void => {
   const testOutputPath = join(process.cwd(), 'newsletters', 'test-output.md')
 
-  beforeEach(() => {
+  beforeEach((): void => {
     if (existsSync(testOutputPath)) {
       unlinkSync(testOutputPath)
     }
   })
 
-  afterEach(() => {
+  afterEach((): void => {
     if (existsSync(testOutputPath)) {
       unlinkSync(testOutputPath)
     }
   })
 
-  it('should generate a newsletter using pipeline', async () => {
+  it('should generate a newsletter using pipeline', async (): Promise<void> => {
     server.use(...happyPathScenario)
 
     const { generateNewsletter } = await import('../scripts/pipelines/newsletter')
@@ -34,7 +34,7 @@ describe('Newsletter Generation', () => {
     expect(result.usage.output_tokens).toBeGreaterThan(0)
   })
 
-  it('should work with Anthropic client', async () => {
+  it('should work with Anthropic client', async (): Promise<void> => {
     server.use(...happyPathScenario)
 
     const { AnthropicClient } = await import('../scripts/core/llm/providers/anthropic')
@@ -51,7 +51,7 @@ describe('Newsletter Generation', () => {
     expect(result.usage.input_tokens).toBeGreaterThan(0)
   })
 
-  it('should handle partial source failures gracefully', async () => {
+  it('should handle partial source failures gracefully', async (): Promise<void> => {
     server.use(...partialFailureScenario)
 
     const { generateNewsletter } = await import('../scripts/pipelines/newsletter')
@@ -63,7 +63,7 @@ describe('Newsletter Generation', () => {
     expect(result.text.length).toBeGreaterThan(100)
   })
 
-  it('should validate newsletter content has no placeholders', async () => {
+  it('should validate newsletter content has no placeholders', async (): Promise<void> => {
     server.use(...happyPathScenario)
 
     const { generateNewsletter } = await import('../scripts/pipelines/newsletter')
@@ -77,7 +77,7 @@ describe('Newsletter Generation', () => {
     expect(validation.errors).toHaveLength(0)
   })
 
-  it('should fetch from GitHub resource adapter', async () => {
+  it('should fetch from GitHub resource adapter', async (): Promise<void> => {
     server.use(...happyPathScenario)
 
     const { GitHubSearchResource } = await import('../scripts/core/resources/adapters/github')
@@ -99,7 +99,7 @@ describe('Newsletter Generation', () => {
     expect(items[0]).toHaveProperty('source')
   })
 
-  it('should fetch from Reddit resource adapter', async () => {
+  it('should fetch from Reddit resource adapter', async (): Promise<void> => {
     server.use(...happyPathScenario)
 
     const { RedditResource } = await import('../scripts/core/resources/adapters/reddit')
@@ -116,14 +116,14 @@ describe('Newsletter Generation', () => {
 
     expect(items).toBeDefined()
     expect(Array.isArray(items)).toBe(true)
-    items.forEach((item) => {
+    items.forEach((item): void => {
       expect(item).toHaveProperty('title')
       expect(item).toHaveProperty('url')
       expect(item).toHaveProperty('source')
     })
   })
 
-  it('should fetch from HN resource adapter', async () => {
+  it('should fetch from HN resource adapter', async (): Promise<void> => {
     server.use(...happyPathScenario)
 
     const { HNResource } = await import('../scripts/core/resources/adapters/hn')
@@ -140,14 +140,14 @@ describe('Newsletter Generation', () => {
 
     expect(items).toBeDefined()
     expect(Array.isArray(items)).toBe(true)
-    items.forEach((item) => {
+    items.forEach((item): void => {
       expect(item).toHaveProperty('title')
       expect(item).toHaveProperty('url')
       expect(item.source).toBe('Hacker News')
     })
   })
 
-  it('should use ResourceRegistry to collect from multiple sources', async () => {
+  it('should use ResourceRegistry to collect from multiple sources', async (): Promise<void> => {
     server.use(...happyPathScenario)
 
     const { ResourceRegistry } = await import('../scripts/core/resources/registry')
@@ -175,7 +175,7 @@ describe('Newsletter Generation', () => {
     expect(Array.isArray(collected['reddit-test'])).toBe(true)
   })
 
-  it('should validate newsletter content structure', async () => {
+  it('should validate newsletter content structure', async (): Promise<void> => {
     const { validateNewsletterContent } = await import('../scripts/utils/validate')
 
     const validContent = `# Vue.js Weekly Newsletter
@@ -192,7 +192,7 @@ More content`
     expect(result.errors).toHaveLength(0)
   })
 
-  it('should detect invalid newsletter content', async () => {
+  it('should detect invalid newsletter content', async (): Promise<void> => {
     const { validateNewsletterContent } = await import('../scripts/utils/validate')
 
     const invalidContent = 'Just some text without proper structure'
@@ -203,7 +203,7 @@ More content`
     expect(result.errors.length).toBeGreaterThan(0)
   })
 
-  it('should detect placeholder content', async () => {
+  it('should detect placeholder content', async (): Promise<void> => {
     const { hasPlaceholderContent } = await import('../scripts/utils/validate')
 
     expect(hasPlaceholderContent('[Project Name] is cool')).toBe(true)
@@ -211,7 +211,7 @@ More content`
     expect(hasPlaceholderContent('Normal text')).toBe(false)
   })
 
-  it('should calculate token costs correctly', async () => {
+  it('should calculate token costs correctly', async (): Promise<void> => {
     const { calculateTokenCost } = await import('../scripts/utils/logging')
 
     const usage = {
@@ -230,7 +230,7 @@ More content`
     expect(costs.totalCost).toBeCloseTo(0.0065)
   })
 
-  it('should format dates correctly', async () => {
+  it('should format dates correctly', async (): Promise<void> => {
     const { format } = await import('../scripts/utils/date')
 
     const date = new Date('2025-01-15')

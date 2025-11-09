@@ -5,7 +5,7 @@ import { createRedditFeedXML } from '../../factories/reddit-feed.factory'
 import { createHNResponse } from '../../factories/hn-stories.factory'
 
 export const happyPathScenario = [
-  http.post('https://api.anthropic.com/v1/messages', async ({ request }) => {
+  http.post('https://api.anthropic.com/v1/messages', async ({ request }): Promise<HttpResponse> => {
     const body = await request.json() as { system?: string }
     const systemPrompt = body.system || ''
 
@@ -44,19 +44,19 @@ export const happyPathScenario = [
     }))
   }),
 
-  http.get('https://blog.vuejs.org/feed.rss', () => {
+  http.get('https://blog.vuejs.org/feed.rss', (): HttpResponse => {
     return new HttpResponse(createRSSFeedXML({ itemCount: 3, daysOld: 0 }), {
       headers: { 'Content-Type': 'application/xml' }
     })
   }),
 
-  http.get('https://nuxt.com/blog/rss.xml', () => {
+  http.get('https://nuxt.com/blog/rss.xml', (): HttpResponse => {
     return new HttpResponse(createRSSFeedXML({ itemCount: 2, daysOld: 1 }), {
       headers: { 'Content-Type': 'application/xml' }
     })
   }),
 
-  http.get('https://www.reddit.com/r/vuejs.rss', () => {
+  http.get('https://www.reddit.com/r/vuejs.rss', (): HttpResponse => {
     return new HttpResponse(createRedditFeedXML({
       itemCount: 5,
       subreddit: 'vuejs',
@@ -66,7 +66,7 @@ export const happyPathScenario = [
     })
   }),
 
-  http.get('https://www.reddit.com/r/Nuxt.rss', () => {
+  http.get('https://www.reddit.com/r/Nuxt.rss', (): HttpResponse => {
     return new HttpResponse(createRedditFeedXML({
       itemCount: 3,
       subreddit: 'Nuxt',
@@ -76,7 +76,7 @@ export const happyPathScenario = [
     })
   }),
 
-  http.get('https://hn.algolia.com/api/v1/search', () => {
+  http.get('https://hn.algolia.com/api/v1/search', (): HttpResponse => {
     return HttpResponse.json(createHNResponse({ hitCount: 4, daysOld: 0 }))
   })
 ]

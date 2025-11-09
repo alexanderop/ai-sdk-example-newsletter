@@ -10,19 +10,19 @@ type GHItem = {
 }
 
 export class GitHubSearchResource implements Resource {
-  id: string
+  public id: string
   private url: string
   private limit: number
 
-  constructor(cfg: ResourceConfig) {
+  public constructor(cfg: ResourceConfig) {
     this.id = cfg.id
     this.limit = cfg.limit ?? 5
     this.url = cfg.url // full query passed via config
   }
 
-  async fetch(): Promise<Item[]> {
+  public async fetch(): Promise<Item[]> {
     const data = await getJson<{ items: GHItem[] }>(this.url)
-    return (data.items ?? []).slice(0, this.limit).map(i => ({
+    return (data.items ?? []).slice(0, this.limit).map((i): Item => ({
       title: i.name,
       url: i.html_url,
       description: i.description ?? 'No description',
