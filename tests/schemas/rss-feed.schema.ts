@@ -18,7 +18,7 @@ export const RSSChannelSchema = z.object({
 export const RSSFeedSchema = z.object({
   rss: z.object({
     '@version': z.literal('2.0'),
-    channel: RSSChannelSchema
+    'channel': RSSChannelSchema
   })
 })
 

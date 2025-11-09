@@ -9,6 +9,7 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "lint:fast": "oxlint",
+    "lint:type-aware": "oxlint --type-aware",
     "typecheck": "nuxt typecheck",
     "newsletter": "tsx scripts/generate-newsletter.ts",
     "test": "vitest",
@@ -32,6 +33,7 @@
     "eslint-plugin-oxlint": "^1.26.0",
     "msw": "^2.12.1",
     "oxlint": "^1.26.0",
+    "oxlint-tsgolint": "^0.5.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.8",
     "vue-tsc": "^3.1.2"

@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { type RSSItem } from '../schemas/rss-feed.schema'
+import type { RSSItem } from '../schemas/rss-feed.schema'
 
 interface RSSFeedOptions {
   title?: string
