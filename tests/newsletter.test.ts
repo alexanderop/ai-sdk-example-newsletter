@@ -297,4 +297,45 @@ More content`
     expect(formatted).toContain('15')
     expect(formatted).toContain('2025')
   })
+
+  it('should render articles section from DEV.to sources', async (): Promise<void> => {
+    server.use(...happyPathScenario)
+
+    const { ResourceRegistry } = await import('../scripts/core/resources/registry')
+
+    // First verify DEV.to sources are collected properly
+    const registry = new ResourceRegistry()
+    registry.register({
+      id: 'devto-vue',
+      kind: 'json',
+      url: 'https://dev.to/api/articles?tag=vue&top=7&per_page=20',
+      tag: 'DEV.to #vue',
+      limit: 10
+    })
+    registry.register({
+      id: 'devto-nuxt',
+      kind: 'json',
+      url: 'https://dev.to/api/articles?tag=nuxt&top=7&per_page=20',
+      tag: 'DEV.to #nuxt',
+      limit: 10
+    })
+
+    const collected = await registry.collect()
+
+    // Verify both sources collected articles
+    expect(collected['devto-vue']).toBeDefined()
+    expect(collected['devto-nuxt']).toBeDefined()
+    expect(collected['devto-vue'].length).toBeGreaterThan(0)
+    expect(collected['devto-nuxt'].length).toBeGreaterThan(0)
+
+    // Verify articles have expected properties
+    const articles = [...collected['devto-vue'], ...collected['devto-nuxt']]
+    articles.forEach((article): void => {
+      expect(article).toHaveProperty('title')
+      expect(article).toHaveProperty('url')
+      expect(article).toHaveProperty('score')
+      expect(article).toHaveProperty('comments')
+      expect(article.source).toContain('DEV.to')
+    })
+  })
 })
