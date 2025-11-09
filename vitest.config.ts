@@ -8,8 +8,23 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      include: ['scripts/**/*.ts']
+      reporter: ['text', 'json', 'html', 'lcov'],
+      include: ['scripts/**/*.ts'],
+      exclude: [
+        'tests/**',
+        '**/*.test.ts',
+        '**/*.spec.ts',
+        '**/node_modules/**',
+        '**/.nuxt/**',
+        '**/dist/**',
+        '**/.output/**'
+      ],
+      thresholds: {
+        lines: 60,
+        functions: 60,
+        branches: 60,
+        statements: 60
+      }
     }
   }
 })

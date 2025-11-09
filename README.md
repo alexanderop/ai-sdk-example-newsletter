@@ -1,6 +1,8 @@
 # Nuxt Starter Template
 
 [![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
+[![Quality Gate](https://github.com/alexanderopalic/ai-sdk-example-newsletter/workflows/Quality%20Gate/badge.svg)](https://github.com/alexanderopalic/ai-sdk-example-newsletter/actions/workflows/ci.yml)
+[![PR Checks](https://github.com/alexanderopalic/ai-sdk-example-newsletter/workflows/PR%20Quality%20Checks/badge.svg)](https://github.com/alexanderopalic/ai-sdk-example-newsletter/actions/workflows/pr-checks.yml)
 
 Use this template to get started with [Nuxt UI](https://ui.nuxt.com) quickly.
 
