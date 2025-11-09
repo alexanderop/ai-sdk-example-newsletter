@@ -20,7 +20,7 @@ export function createMockLLMClient(): LLMClient {
     name: 'mock',
     model: 'mock-model',
     maxTokens: 4096,
-    async generate(messages: LLMMessage[]): Promise<LLMResponse> {
+    async generate(_messages: LLMMessage[]): Promise<LLMResponse> {
       // Return a simple mock newsletter
       return {
         text: `# Vue.js Weekly Newsletter

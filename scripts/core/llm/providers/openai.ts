@@ -10,7 +10,11 @@ export class OpenAIClient implements LLMClient {
   constructor(opts?: { apiKey?: string, model?: string, maxTokens?: number }) {
     this.model = opts?.model ?? 'gpt-4o-mini'
     this.maxTokens = opts?.maxTokens ?? 4096
-    this.client = new OpenAI({ apiKey: opts?.apiKey ?? process.env.OPENAI_API_KEY! })
+    const apiKey = opts?.apiKey ?? process.env.OPENAI_API_KEY
+    if (!apiKey) {
+      throw new Error('OpenAI API key is required. Provide it via constructor or OPENAI_API_KEY environment variable.')
+    }
+    this.client = new OpenAI({ apiKey })
   }
 
   async generate(messages: LLMMessage[], opts?: { temperature?: number }): Promise<LLMResponse> {

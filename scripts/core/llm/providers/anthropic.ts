@@ -10,7 +10,11 @@ export class AnthropicClient implements LLMClient {
   constructor(opts?: { apiKey?: string, model?: string, maxTokens?: number }) {
     this.model = opts?.model ?? 'claude-haiku-4-5-20251001'
     this.maxTokens = opts?.maxTokens ?? 4096
-    this.client = new Anthropic({ apiKey: opts?.apiKey ?? process.env.ANTHROPIC_API_KEY! })
+    const apiKey = opts?.apiKey ?? process.env.ANTHROPIC_API_KEY
+    if (!apiKey) {
+      throw new Error('Anthropic API key is required. Provide it via constructor or ANTHROPIC_API_KEY environment variable.')
+    }
+    this.client = new Anthropic({ apiKey })
   }
 
   async generate(messages: LLMMessage[], opts?: { temperature?: number }): Promise<LLMResponse> {

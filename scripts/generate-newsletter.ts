@@ -4,7 +4,8 @@ import { generateNewsletter } from './pipelines/newsletter.js'
 import { AnthropicClient } from './core/llm/providers/anthropic.js'
 import { OpenAIClient } from './core/llm/providers/openai.js'
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 config()
 
@@ -14,8 +15,11 @@ function llmFromEnv() {
     if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY missing')
     return new OpenAIClient({ apiKey: process.env.OPENAI_API_KEY, model: process.env.OPENAI_MODEL })
   }
-  if (!process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY missing')
-  return new AnthropicClient({ apiKey: process.env.ANTHROPIC_API_KEY, model: process.env.ANTHROPIC_MODEL })
+  if (provider === 'anthropic') {
+    if (!process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY missing')
+    return new AnthropicClient({ apiKey: process.env.ANTHROPIC_API_KEY, model: process.env.ANTHROPIC_MODEL })
+  }
+  throw new Error(`Unknown LLM_PROVIDER: ${provider}. Must be 'openai' or 'anthropic'`)
 }
 
 function save(text: string, filename?: string) {
@@ -27,7 +31,10 @@ function save(text: string, filename?: string) {
   return path
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+const scriptPath = process.argv[1] ? resolve(process.argv[1]) : undefined
+const modulePath = resolve(fileURLToPath(import.meta.url))
+
+if (scriptPath && scriptPath === modulePath) {
   const start = Date.now()
   const llm = llmFromEnv()
   console.log(`🤖 Using ${llm.name} provider (${llm.model})`)

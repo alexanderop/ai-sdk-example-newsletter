@@ -1,11 +1,33 @@
-export async function getText(url: string, headers?: Record<string, string>) {
-  const res = await fetch(url, { headers })
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${url}`)
-  return res.text()
+export async function getText(url: string, headers?: Record<string, string>, timeout = 10000) {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), timeout)
+  try {
+    const res = await fetch(url, { headers, signal: controller.signal })
+    clearTimeout(timeoutId)
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${url}`)
+    return res.text()
+  } catch (err) {
+    clearTimeout(timeoutId)
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw new Error(`Timeout after ${timeout}ms for ${url}`)
+    }
+    throw err
+  }
 }
 
-export async function getJson<T>(url: string, headers?: Record<string, string>) {
-  const res = await fetch(url, { headers })
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${url}`)
-  return res.json() as Promise<T>
+export async function getJson<T>(url: string, headers?: Record<string, string>, timeout = 10000) {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), timeout)
+  try {
+    const res = await fetch(url, { headers, signal: controller.signal })
+    clearTimeout(timeoutId)
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${url}`)
+    return res.json() as Promise<T>
+  } catch (err) {
+    clearTimeout(timeoutId)
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw new Error(`Timeout after ${timeout}ms for ${url}`)
+    }
+    throw err
+  }
 }
