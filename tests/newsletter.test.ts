@@ -210,6 +210,28 @@ describe('Newsletter Generation', (): void => {
     expect(Array.isArray(collected['reddit-test'])).toBe(true)
   })
 
+  it('should register DevToResource via registry with devto- ID prefix', async (): Promise<void> => {
+    server.use(...happyPathScenario)
+
+    const { ResourceRegistry } = await import('../scripts/core/resources/registry')
+
+    const registry = new ResourceRegistry()
+    registry.register({
+      id: 'devto-vue',
+      kind: 'json',
+      url: 'https://dev.to/api/articles?tag=vue&top=7&per_page=20',
+      tag: 'DEV.to #vue',
+      limit: 10
+    })
+
+    const collected = await registry.collect()
+
+    expect(collected).toHaveProperty('devto-vue')
+    expect(Array.isArray(collected['devto-vue'])).toBe(true)
+    expect(collected['devto-vue'].length).toBeGreaterThan(0)
+    expect(collected['devto-vue'][0].source).toContain('DEV.to')
+  })
+
   it('should validate newsletter content structure', async (): Promise<void> => {
     const { validateNewsletterContent } = await import('../scripts/utils/validate')
 

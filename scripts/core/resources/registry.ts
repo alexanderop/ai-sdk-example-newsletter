@@ -3,6 +3,7 @@ import { RedditResource } from './adapters/reddit.js'
 import { HNResource } from './adapters/hn.js'
 import { GitHubSearchResource } from './adapters/github.js'
 import { RSSResource } from './adapters/rss.js'
+import { DevToResource } from './adapters/devto.js'
 
 export class ResourceRegistry {
   private resources: Resource[] = []
@@ -11,13 +12,15 @@ export class ResourceRegistry {
     const r
       = cfg.kind === 'json' && cfg.id.startsWith('hn')
         ? new HNResource(cfg)
-        : cfg.kind === 'github'
-          ? new GitHubSearchResource(cfg)
-          : cfg.kind === 'rss'
-            ? new RSSResource(cfg)
-            : cfg.kind === 'atom'
-              ? new RedditResource(cfg)
-              : ((): never => { throw new Error(`Unknown kind ${cfg.kind}`) })()
+        : cfg.kind === 'json' && cfg.id.startsWith('devto-')
+          ? new DevToResource(cfg)
+          : cfg.kind === 'github'
+            ? new GitHubSearchResource(cfg)
+            : cfg.kind === 'rss'
+              ? new RSSResource(cfg)
+              : cfg.kind === 'atom'
+                ? new RedditResource(cfg)
+                : ((): never => { throw new Error(`Unknown kind ${cfg.kind}`) })()
 
     this.resources.push(r)
     return this
