@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { server } from './setup'
+import { server, createMockAnthropicClient } from './setup'
 import { happyPathScenario } from './mocks/scenarios/happy-path'
 import { partialFailureScenario } from './mocks/scenarios/partial-failure'
 import { existsSync, unlinkSync } from 'node:fs'
@@ -24,8 +24,9 @@ describe('Newsletter Generation', () => {
 
   it('should generate a newsletter', async () => {
     const { generateNewsletter } = await import('../scripts/generate-newsletter')
+    const mockClient = createMockAnthropicClient()
 
-    const result = await generateNewsletter()
+    const result = await generateNewsletter(mockClient)
 
     expect(result).toContain('# Vue.js Weekly Newsletter')
   })
@@ -34,7 +35,8 @@ describe('Newsletter Generation', () => {
     server.use(...happyPathScenario)
 
     const { generateNewsletter } = await import('../scripts/generate-newsletter')
-    const result = await generateNewsletter()
+    const mockClient = createMockAnthropicClient()
+    const result = await generateNewsletter(mockClient)
 
     expect(result).toContain('# Vue.js Weekly Newsletter')
     expect(result).toContain('## 🎯 Official Updates')
@@ -45,7 +47,8 @@ describe('Newsletter Generation', () => {
     server.use(...happyPathScenario)
 
     const { generateNewsletterToFile } = await import('../scripts/generate-newsletter')
-    const filePath = await generateNewsletterToFile('test-output.md')
+    const mockClient = createMockAnthropicClient()
+    const filePath = await generateNewsletterToFile('test-output.md', mockClient)
 
     expect(existsSync(filePath)).toBe(true)
     expect(filePath).toContain('newsletters/test-output.md')
@@ -55,7 +58,8 @@ describe('Newsletter Generation', () => {
     server.use(...partialFailureScenario)
 
     const { generateNewsletter } = await import('../scripts/generate-newsletter')
-    const result = await generateNewsletter()
+    const mockClient = createMockAnthropicClient()
+    const result = await generateNewsletter(mockClient)
 
     expect(result).toContain('# Vue.js Weekly Newsletter')
     // Should still generate newsletter even if one source fails
@@ -114,7 +118,8 @@ describe('Newsletter Generation', () => {
     server.use(...happyPathScenario)
 
     const { generateNewsletter } = await import('../scripts/generate-newsletter')
-    const result = await generateNewsletter()
+    const mockClient = createMockAnthropicClient()
+    const result = await generateNewsletter(mockClient)
 
     expect(result).toBeDefined()
     expect(result.length).toBeGreaterThan(50)
@@ -127,7 +132,8 @@ describe('Newsletter Generation', () => {
     server.use(...happyPathScenario)
 
     const { generateNewsletter } = await import('../scripts/generate-newsletter')
-    const result = await generateNewsletter()
+    const mockClient = createMockAnthropicClient()
+    const result = await generateNewsletter(mockClient)
 
     // No placeholders with brackets
     expect(result).not.toMatch(/\[.*?\]/)
@@ -174,7 +180,6 @@ describe('Newsletter Generation', () => {
   })
 
   it('should use exponential backoff between retries', async () => {
-    const delays: number[] = []
     let attempts = 0
     const mockOperation = async () => {
       attempts++
@@ -199,7 +204,8 @@ describe('Newsletter Generation', () => {
     server.use(...happyPathScenario)
 
     const { generateNewsletter } = await import('../scripts/generate-newsletter')
-    const result = await generateNewsletter()
+    const mockClient = createMockAnthropicClient()
+    const result = await generateNewsletter(mockClient)
 
     // Should have generated content
     expect(result).toBeDefined()
@@ -303,7 +309,8 @@ More content`
     server.use(...happyPathScenario)
 
     const { generateNewsletter } = await import('../scripts/generate-newsletter')
-    const result = await generateNewsletter()
+    const mockClient = createMockAnthropicClient()
+    const result = await generateNewsletter(mockClient)
 
     // Newsletter should be generated even if Reddit has no data
     expect(result).toBeDefined()
