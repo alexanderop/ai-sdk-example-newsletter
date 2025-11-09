@@ -1,91 +1,51 @@
-import Anthropic from '@anthropic-ai/sdk'
 import { config } from 'dotenv'
-import { loadPrompt, getPrompt } from './prompts/loader.js'
-import { validateEnvironment, RedditPostSchema } from './api.js'
-import {
-  fetchAllData,
-  prepareNewsletterContext,
-  callClaudeAPI,
-  extractNewsletterText,
-  validateAndLogNewsletter,
-  saveNewsletterToFile
-} from './orchestration.js'
+config()
 
-// Re-export for backward compatibility with tests
-export { RedditPostSchema } from './api.js'
-export type { RedditPost } from './utils.js'
-export { fetchSubredditRSS, fetchRedditPosts, fetchVueNews, fetchTrendingRepos } from './api.js'
-export { retryWithBackoff, validateNewsletterContent } from './utils.js'
+import { generateNewsletter } from './pipelines/newsletter.js'
+import { AnthropicClient } from './core/llm/providers/anthropic.js'
+import { OpenAIClient } from './core/llm/providers/openai.js'
+import { writeFileSync, mkdirSync, existsSync } from 'node:fs'
+import { join } from 'node:path'
 
-// ============================================================================
-// Newsletter Generation Recipes - The Main Workflows
-// ============================================================================
-
-export async function generateNewsletter(anthropicClient?: Anthropic): Promise<string> {
-  console.log('\n🚀 Starting newsletter generation...')
-  console.log('='.repeat(60))
-
-  // Only load .env and validate environment if no client is injected
-  if (!anthropicClient) {
-    config()
-    validateEnvironment()
+function llmFromEnv() {
+  const provider = (process.env.LLM_PROVIDER ?? 'anthropic').toLowerCase()
+  if (provider === 'openai') {
+    if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY missing')
+    return new OpenAIClient({ apiKey: process.env.OPENAI_API_KEY, model: process.env.OPENAI_MODEL })
   }
-
-  // Create Anthropic client after validation (or use injected client for testing)
-  const anthropic = anthropicClient || new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY
-  })
-
-  // Step 1: Fetch all data sources in parallel
-  const data = await fetchAllData()
-
-  // Step 2: Format data into context for AI
-  const contextData = prepareNewsletterContext(data)
-
-  // Step 3: Load prompts and call Claude AI
-  const systemPrompt = loadPrompt('newsletter-system.md')
-  const userPrompt = getPrompt('newsletter-user.md', { CONTEXT_DATA: contextData })
-  const message = await callClaudeAPI(anthropic, systemPrompt, userPrompt, true)
-
-  // Step 4: Extract and validate newsletter
-  const newsletter = extractNewsletterText(message)
-  validateAndLogNewsletter(newsletter)
-
-  return newsletter
+  if (!process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY missing')
+  return new AnthropicClient({ apiKey: process.env.ANTHROPIC_API_KEY, model: process.env.ANTHROPIC_MODEL })
 }
 
-export async function generateNewsletterToFile(filename?: string, anthropicClient?: Anthropic): Promise<string> {
-  // Step 1: Generate newsletter content
-  const newsletter = await generateNewsletter(anthropicClient)
-
-  // Step 2: Save to file
-  const filePath = saveNewsletterToFile(newsletter, filename)
-
-  return filePath
+function save(text: string, filename?: string) {
+  const dir = join(process.cwd(), 'newsletters')
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
+  const name = filename ?? new Date().toISOString().split('T')[0] + '-vue-weekly.md'
+  const path = join(dir, name)
+  writeFileSync(path, text, 'utf-8')
+  return path
 }
 
-// ============================================================================
-// CLI Entry Point
-// ============================================================================
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const startTime = Date.now()
+  const start = Date.now()
+  const llm = llmFromEnv()
+  console.log(`🤖 Using ${llm.name} provider (${llm.model})`)
 
-  generateNewsletterToFile()
-    .then((filePath) => {
-      const duration = ((Date.now() - startTime) / 1000).toFixed(2)
-      console.log('\n' + '='.repeat(60))
-      console.log(`✅ Newsletter generated successfully!`)
-      console.log(`   📁 Location: ${filePath}`)
-      console.log(`   ⏱️  Total time: ${duration}s`)
-      console.log('='.repeat(60) + '\n')
+  generateNewsletter(llm)
+    .then(({ text, usage }) => {
+      const path = save(text)
+      console.log(`✅ Wrote ${path}`)
+      console.log(`📊 Tokens in/out: ${usage.input_tokens}/${usage.output_tokens}`)
+      if (usage.cache_read_input_tokens) {
+        console.log(`💾 Cache read: ${usage.cache_read_input_tokens} tokens`)
+      }
+      if (usage.cache_creation_input_tokens) {
+        console.log(`💾 Cache created: ${usage.cache_creation_input_tokens} tokens`)
+      }
+      console.log(`⏱️  ${((Date.now() - start) / 1000).toFixed(1)}s`)
     })
-    .catch((error) => {
-      const duration = ((Date.now() - startTime) / 1000).toFixed(2)
-      console.error('\n' + '='.repeat(60))
-      console.error('❌ Error generating newsletter:')
-      console.error(`   ${error.message || error}`)
-      console.error(`   ⏱️  Failed after: ${duration}s`)
-      console.error('='.repeat(60) + '\n')
+    .catch(err => {
+      console.error('❌', err?.message ?? err)
       process.exit(1)
     })
 }
