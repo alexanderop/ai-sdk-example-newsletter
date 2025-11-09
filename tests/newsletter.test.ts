@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { server } from './setup'
 import { happyPathScenario } from './mocks/scenarios/happy-path'
+import { partialFailureScenario } from './mocks/scenarios/partial-failure'
 import { existsSync, unlinkSync } from 'node:fs'
 import { join } from 'node:path'
 
@@ -48,5 +49,16 @@ describe('Newsletter Generation', () => {
 
     expect(existsSync(filePath)).toBe(true)
     expect(filePath).toContain('newsletters/test-output.md')
+  })
+
+  it('should handle partial failures gracefully', async () => {
+    server.use(...partialFailureScenario)
+
+    const { generateNewsletter } = await import('../scripts/generate-newsletter')
+    const result = await generateNewsletter()
+
+    expect(result).toContain('# Vue.js Weekly Newsletter')
+    // Should still generate newsletter even if one source fails
+    expect(result.length).toBeGreaterThan(100)
   })
 })
