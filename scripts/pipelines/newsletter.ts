@@ -10,9 +10,9 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 function renderSections(collected: Record<string, Item[]>): {
-  news: string,
-  repos: string,
-  reddit: string,
+  news: string;
+  repos: string;
+  reddit: string;
   articles: string
 } {
   const news = (collected['github-news'] ?? []).map((i): string => `- [${i.title}](${i.url})`).join('\n') || '- No recent Vue.js news available'

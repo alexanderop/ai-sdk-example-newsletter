@@ -85,7 +85,7 @@ The newsletter generator (`scripts/generate-newsletter.ts`) follows this workflo
    - Trending Vue/TypeScript projects
 3. **AI Generation** - Sends collected data to Claude Haiku 4.5 with structured prompts
 4. **Content Validation** - Ensures newsletter meets quality standards
-5. **Output** - Saves formatted markdown to `newsletters/` directory
+5. **Output** - Saves formatted Markdown to `newsletters/` directory
 
 ### Key Features
 
