@@ -3,6 +3,7 @@ import { createClaudeMessage } from '../factories/claude-message.factory'
 import { createRSSFeedXML } from '../factories/rss-feed.factory'
 import { createRedditFeedXML } from '../factories/reddit-feed.factory'
 import { createHNResponse } from '../factories/hn-stories.factory'
+import { createDevToResponse } from '../factories/devto-articles.factory'
 
 export const handlers = [
   // Claude API - conditional responses based on system prompt
@@ -163,5 +164,32 @@ Generated on: ${new Date().toISOString()}
     }
 
     return HttpResponse.json({ items: [] })
+  }),
+
+  // DEV.to API - Articles by tag
+  http.get('https://dev.to/api/articles', ({ request }): HttpResponse => {
+    const url = new URL(request.url)
+    const tag = url.searchParams.get('tag')
+    const top = url.searchParams.get('top')
+
+    if (tag === 'vue') {
+      return HttpResponse.json(createDevToResponse({
+        articleCount: 10,
+        daysOld: Number(top) || 7,
+        minReactions: 5,
+        tags: ['vue', 'javascript', 'webdev']
+      }))
+    }
+
+    if (tag === 'nuxt') {
+      return HttpResponse.json(createDevToResponse({
+        articleCount: 8,
+        daysOld: Number(top) || 7,
+        minReactions: 5,
+        tags: ['nuxt', 'vue', 'ssr']
+      }))
+    }
+
+    return HttpResponse.json([])
   })
 ]
