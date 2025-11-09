@@ -1,4 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
+import { writeFileSync, mkdirSync } from 'node:fs'
+import { join, dirname } from 'node:path'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || 'test-key'
@@ -21,11 +23,30 @@ export async function generateNewsletter(): Promise<string> {
   return textContent?.type === 'text' ? textContent.text : ''
 }
 
+export async function generateNewsletterToFile(filename?: string): Promise<string> {
+  const newsletter = await generateNewsletter()
+
+  // Generate filename: YYYY-MM-DD-vue-weekly.md
+  const date = new Date().toISOString().split('T')[0]
+  const defaultFilename = `${date}-vue-weekly.md`
+  const actualFilename = filename || defaultFilename
+
+  const outputPath = join(process.cwd(), 'newsletters', actualFilename)
+
+  // Ensure directory exists
+  mkdirSync(dirname(outputPath), { recursive: true })
+
+  // Write file
+  writeFileSync(outputPath, newsletter, 'utf-8')
+
+  return outputPath
+}
+
 // CLI entry point
 if (import.meta.url === `file://${process.argv[1]}`) {
-  generateNewsletter()
-    .then(newsletter => {
-      console.log(newsletter)
+  generateNewsletterToFile()
+    .then(filePath => {
+      console.log(`✅ Newsletter generated: ${filePath}`)
     })
     .catch(error => {
       console.error('Error generating newsletter:', error)
