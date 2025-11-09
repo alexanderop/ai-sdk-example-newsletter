@@ -9,7 +9,12 @@ import { format } from '../utils/date.js'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-function renderSections(collected: Record<string, Item[]>): { news: string, repos: string, reddit: string } {
+function renderSections(collected: Record<string, Item[]>): {
+  news: string,
+  repos: string,
+  reddit: string,
+  articles: string
+} {
   const news = (collected['github-news'] ?? []).map((i): string => `- [${i.title}](${i.url})`).join('\n') || '- No recent Vue.js news available'
   const repos = (collected['github-news'] ?? []).map((r: Item, idx: number): string =>
     `${idx + 1}. **[${r.title}](${r.url})** - ${r.description ?? 'No description'}${r.stars ? ` (⭐ ${r.stars.toLocaleString()})` : ''}`
@@ -23,7 +28,22 @@ function renderSections(collected: Record<string, Item[]>): { news: string, repo
       return `${idx + 1}. **[${p.title}](${p.url})** - ${p.source}${d ? ` (${d})` : ''}`
     }).join('\n') || '- No significant community discussions this week'
 
-  return { news, repos, reddit }
+  const articles = [...(collected['devto-vue'] ?? []), ...(collected['devto-nuxt'] ?? [])]
+    .sort((a, b): number => (b.score ?? 0) - (a.score ?? 0))
+    .slice(0, 10)
+    .map((article, idx): string => {
+      const date = article.date
+        ? article.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        : ''
+      const reactions = article.score ? `❤️ ${article.score}` : ''
+      const comments = article.comments ? `💬 ${article.comments}` : ''
+      const stats = [reactions, comments].filter(Boolean).join(', ')
+      const tags = article.description ?? ''
+
+      return `${idx + 1}. **[${article.title}](${article.url})** - ${article.source}${date ? ` (${date})` : ''}${stats ? ` | ${stats}` : ''}${tags ? `\n   ${tags}` : ''}`
+    }).join('\n') || '- No recent articles available'
+
+  return { news, repos, reddit, articles }
 }
 
 export async function generateNewsletter(llm: LLMClient): Promise<{ text: string, usage: { input_tokens: number, output_tokens: number, cache_creation_input_tokens?: number, cache_read_input_tokens?: number } }> {
@@ -37,7 +57,7 @@ export async function generateNewsletter(llm: LLMClient): Promise<{ text: string
   const collected = await registry.collect()
 
   // Format context data
-  const { news, repos, reddit } = renderSections(collected)
+  const { news, repos, reddit, articles } = renderSections(collected)
   const currentDate = format(new Date())
   const context = [
     `Current Date: ${currentDate}`,
@@ -46,7 +66,9 @@ export async function generateNewsletter(llm: LLMClient): Promise<{ text: string
     '',
     `Trending Vue.js Repositories:\n${repos}`,
     '',
-    `Community Discussions from Reddit:\n${reddit}`
+    `Community Discussions from Reddit:\n${reddit}`,
+    '',
+    `Articles & Tutorials from DEV.to:\n${articles}`
   ].join('\n')
 
   // Load prompts
