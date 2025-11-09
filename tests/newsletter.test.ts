@@ -86,8 +86,8 @@ describe('Newsletter Generation', () => {
   it('should generate newsletter with real data and no placeholders', async () => {
     server.use(...happyPathScenario)
 
-    const { generateNewsletterWithRealData } = await import('../scripts/generate-newsletter')
-    const result = await generateNewsletterWithRealData()
+    const { generateNewsletter } = await import('../scripts/generate-newsletter')
+    const result = await generateNewsletter()
 
     expect(result).toBeDefined()
     expect(result.length).toBeGreaterThan(50)
@@ -99,8 +99,8 @@ describe('Newsletter Generation', () => {
   it('should not contain hallucinated content', async () => {
     server.use(...happyPathScenario)
 
-    const { generateNewsletterWithRealData } = await import('../scripts/generate-newsletter')
-    const result = await generateNewsletterWithRealData()
+    const { generateNewsletter } = await import('../scripts/generate-newsletter')
+    const result = await generateNewsletter()
 
     // No placeholders with brackets
     expect(result).not.toMatch(/\[.*?\]/)
@@ -171,8 +171,8 @@ describe('Newsletter Generation', () => {
   it('should track token usage and costs', async () => {
     server.use(...happyPathScenario)
 
-    const { generateNewsletterWithRealData } = await import('../scripts/generate-newsletter')
-    const result = await generateNewsletterWithRealData()
+    const { generateNewsletter } = await import('../scripts/generate-newsletter')
+    const result = await generateNewsletter()
 
     // Should have generated content
     expect(result).toBeDefined()
@@ -266,8 +266,8 @@ More content`
   it('should include Reddit data in newsletter context', async () => {
     server.use(...happyPathScenario)
 
-    const { generateNewsletterWithRealData } = await import('../scripts/generate-newsletter')
-    const result = await generateNewsletterWithRealData()
+    const { generateNewsletter } = await import('../scripts/generate-newsletter')
+    const result = await generateNewsletter()
 
     // Newsletter should be generated even if Reddit has no data
     expect(result).toBeDefined()

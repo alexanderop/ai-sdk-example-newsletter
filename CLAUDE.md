@@ -74,7 +74,7 @@ Key functions:
 
 ### Claude API Integration
 
-The newsletter generator uses Claude Sonnet 4.5 (`claude-sonnet-4-5-20250929`) with:
+The newsletter generator uses Claude Haiku 4.5 (`claude-haiku-4-5-20251001`) with:
 - **Prompt Caching**: System prompts are cached to reduce costs by ~90% on repeated runs
 - **Retry Logic**: Automatic retry with exponential backoff (3 retries, starting at 1s delay)
 - **Cost Monitoring**: Real-time token usage and cost tracking logged to console
