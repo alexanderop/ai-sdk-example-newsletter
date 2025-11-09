@@ -7,7 +7,7 @@ export class OpenAIClient implements LLMClient {
   public maxTokens?: number
   private client: OpenAI
 
-  constructor(opts?: { apiKey?: string; model?: string; maxTokens?: number }) {
+  constructor(opts?: { apiKey?: string, model?: string, maxTokens?: number }) {
     this.model = opts?.model ?? 'gpt-4o-mini'
     this.maxTokens = opts?.maxTokens ?? 4096
     this.client = new OpenAI({ apiKey: opts?.apiKey ?? process.env.OPENAI_API_KEY! })

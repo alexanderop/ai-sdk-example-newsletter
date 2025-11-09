@@ -7,7 +7,7 @@
     "dev": "nuxt dev",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "lint": "eslint .",
+    "lint": "oxlint && eslint .",
     "lint:fast": "oxlint",
     "lint:type-aware": "oxlint --type-aware",
     "typecheck": "nuxt typecheck",
@@ -23,6 +23,7 @@
     "@nuxt/ui": "^4.1.0",
     "dotenv": "^17.2.3",
     "nuxt": "^4.2.0",
+    "openai": "^6.8.1",
     "tsx": "^4.20.6",
     "zod": "^4.1.12"
   },

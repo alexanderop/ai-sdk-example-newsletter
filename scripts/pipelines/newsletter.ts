@@ -1,25 +1,24 @@
 import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { dirname } from 'node:path'
 import { ResourceRegistry } from '../core/resources/registry.js'
 import type { LLMClient } from '../core/llm/LLMClient.js'
-import type { ResourceConfig } from '../core/resources/types.js'
+import type { ResourceConfig, Item } from '../core/resources/types.js'
 import { format } from '../utils/date.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-function renderSections(collected: Record<string, any[]>) {
+function renderSections(collected: Record<string, Item[]>) {
   const news = (collected['github-news'] ?? []).map(i => `- [${i.title}](${i.url})`).join('\n') || '- No recent Vue.js news available'
-  const repos = (collected['github-news'] ?? []).map((r: any, idx: number) =>
+  const repos = (collected['github-news'] ?? []).map((r: Item, idx: number) =>
     `${idx + 1}. **[${r.title}](${r.url})** - ${r.description ?? 'No description'}${r.stars ? ` (⭐ ${r.stars.toLocaleString()})` : ''}`
   ).join('\n') || '- No trending repositories available'
 
   const reddit = [...(collected['reddit-vuejs'] ?? []), ...(collected['reddit-nuxt'] ?? [])]
     .sort((a, b) => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0))
     .slice(0, 10)
-    .map((p: any, idx: number) => {
+    .map((p: Item, idx: number) => {
       const d = p.date ? p.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''
       return `${idx + 1}. **[${p.title}](${p.url})** - ${p.source}${d ? ` (${d})` : ''}`
     }).join('\n') || '- No significant community discussions this week'

@@ -8,12 +8,16 @@ export class ResourceRegistry {
   private resources: Resource[] = []
 
   register(cfg: ResourceConfig): this {
-    const r =
-      cfg.kind === 'json' && cfg.id.startsWith('hn') ? new HNResource(cfg) :
-      cfg.kind === 'github' ? new GitHubSearchResource(cfg) :
-      cfg.kind === 'rss' ? new RSSResource(cfg) :
-      cfg.kind === 'atom' ? new RedditResource(cfg) :
-      (() => { throw new Error(`Unknown kind ${cfg.kind}`) })()
+    const r
+      = cfg.kind === 'json' && cfg.id.startsWith('hn')
+        ? new HNResource(cfg)
+        : cfg.kind === 'github'
+          ? new GitHubSearchResource(cfg)
+          : cfg.kind === 'rss'
+            ? new RSSResource(cfg)
+            : cfg.kind === 'atom'
+              ? new RedditResource(cfg)
+              : (() => { throw new Error(`Unknown kind ${cfg.kind}`) })()
 
     this.resources.push(r)
     return this

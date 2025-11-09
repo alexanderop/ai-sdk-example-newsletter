@@ -4,9 +4,9 @@ export interface ResourceConfig {
   id: string
   kind: ResourceKind
   url: string
-  minScore?: number       // optional filter (e.g., HN points)
+  minScore?: number // optional filter (e.g., HN points)
   limit?: number
-  tag?: string            // subreddit, label, etc
+  tag?: string // subreddit, label, etc
 }
 
 export interface Item {
@@ -17,7 +17,7 @@ export interface Item {
   comments?: number
   description?: string
   stars?: number
-  source: string          // human-friendly source name
+  source: string // human-friendly source name
 }
 
 export interface Resource {
