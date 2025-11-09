@@ -126,7 +126,7 @@ Generated on: ${new Date().toISOString()}
     })
   }),
 
-  http.get('http://hn.algolia.com/api/v1/search', () => {
+  http.get('https://hn.algolia.com/api/v1/search', () => {
     return HttpResponse.json(createHNResponse({
       hitCount: 4
     }))
