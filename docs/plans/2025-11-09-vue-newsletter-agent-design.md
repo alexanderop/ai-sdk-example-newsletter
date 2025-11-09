@@ -18,19 +18,50 @@ scripts/
     rss-fetcher.md               # Subagent for RSS feeds
     reddit-researcher.md         # Subagent for Reddit
     hn-researcher.md             # Subagent for Hacker News
+
 newsletters/
   YYYY-MM-DD-vue-weekly.md       # Generated newsletters
+
 tests/
+  # Test files
   newsletter.test.ts             # Integration tests
+  setup.ts                       # MSW server setup + global config
+
+  # Schemas (source of truth)
+  schemas/
+    claude-api.schema.ts         # Claude API response schemas
+    claude-stream.schema.ts      # SSE event schemas
+    rss-feed.schema.ts           # RSS XML schemas
+    reddit.schema.ts             # Reddit API schemas
+    hn.schema.ts                 # Hacker News API schemas
+    newsletter.schema.ts         # Newsletter output schema
+
+  # Factories (data generation)
+  factories/
+    claude-message.factory.ts    # Claude message factory
+    claude-stream.factory.ts     # SSE stream factory
+    rss-feed.factory.ts          # RSS feed factory
+    reddit-feed.factory.ts       # Reddit feed factory
+    hn-stories.factory.ts        # HN stories factory
+    index.ts                     # Export all factories
+
+  # MSW mocking
   mocks/
-    handlers.ts                  # MSW request handlers
-    fixtures/
-      vue-blog-rss.xml           # Mock RSS feed data
-      reddit-response.json       # Mock Reddit data
-      hn-response.json           # Mock HN data
-  setup.ts                       # MSW server setup
-package.json                     # Add scripts + dependencies
-.env.example                     # Environment variable template
+    handlers.ts                  # All MSW request handlers
+    scenarios/                   # Pre-built test scenarios
+      happy-path.ts              # All sources working
+      partial-failure.ts         # Some sources failing
+      empty-week.ts              # No content found
+      rate-limited.ts            # API rate limit errors
+
+  # Static fixtures (optional, for reference)
+  fixtures/
+    vue-blog-rss.xml            # Real RSS example
+    reddit-response.json        # Real Reddit example
+
+vitest.config.ts                # Vitest configuration
+package.json                    # Updated dependencies
+.env.example                    # Environment variable template
 ```
 
 ### Dependencies
@@ -39,16 +70,21 @@ package.json                     # Add scripts + dependencies
 {
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "latest",
-    "tsx": "latest"
+    "tsx": "latest",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
-    "vitest": "latest",
-    "msw": "latest"
+    "@faker-js/faker": "^9.3.0",
+    "msw": "^2.8.0",
+    "vitest": "^2.1.8",
+    "@vitest/ui": "^2.1.8"
   },
   "scripts": {
     "newsletter": "tsx scripts/generate-newsletter.ts",
     "test": "vitest",
-    "test:watch": "vitest --watch"
+    "test:watch": "vitest --watch",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   }
 }
 ```
@@ -228,47 +264,467 @@ Each newsletter includes:
 
 ## Testing Strategy
 
-### Test Framework
+### Test Framework & Architecture
 
-- **Runner:** Vitest
-- **Mocking:** MSW (Mock Service Worker)
-- **Approach:** TDD with integration tests
+- **Runner:** Vitest (v2.1.8+)
+- **Mocking:** MSW (Mock Service Worker v2.8+)
+- **Validation:** Zod schemas for type-safe data structures
+- **Data Generation:** Faker.js for realistic mock data
+- **Approach:** Schema-first TDD with integration tests
 
-### Mock Setup
+### Schema-First Testing with Zod
 
-Mock these endpoints:
-- `https://blog.vuejs.org/feed.rss` → Return fixture RSS XML
-- `https://nuxt.com/blog/rss.xml` → Return fixture RSS XML
-- `https://www.reddit.com/r/vuejs.rss` → Return fixture RSS XML
-- `http://hn.algolia.com/api/v1/search*` → Return fixture JSON
+All API data structures are defined using Zod schemas that serve as the single source of truth. This provides type safety, runtime validation, and automatic TypeScript type generation.
+
+**Benefits:**
+- Validate mock responses match real API structure
+- Catch breaking changes when APIs evolve
+- Generate TypeScript types from schemas
+- Ensure test data is always valid
+
+**Example Schema:**
+```typescript
+// tests/schemas/claude-api.schema.ts
+import { z } from 'zod'
+
+export const ClaudeMessageSchema = z.object({
+  id: z.string(),
+  type: z.literal('message'),
+  role: z.enum(['assistant']),
+  content: z.array(z.object({
+    type: z.literal('text'),
+    text: z.string()
+  })),
+  model: z.string(),
+  stop_reason: z.enum(['end_turn', 'max_tokens', 'stop_sequence']),
+  usage: z.object({
+    input_tokens: z.number(),
+    output_tokens: z.number()
+  })
+})
+
+export type ClaudeMessage = z.infer<typeof ClaudeMessageSchema>
+```
+
+**Schema Coverage:**
+- `claude-api.schema.ts` - Claude API Messages endpoint responses
+- `claude-stream.schema.ts` - Server-Sent Events (SSE) streaming format
+- `rss-feed.schema.ts` - RSS 2.0 feed structure
+- `reddit.schema.ts` - Reddit RSS feed format
+- `hn.schema.ts` - Hacker News Algolia API responses
+- `newsletter.schema.ts` - Generated newsletter structure
+
+### Factory Pattern with Faker.js
+
+Factories combine Zod schemas with Faker.js to generate realistic, valid mock data. Each factory provides sensible defaults but allows overrides for specific test cases.
+
+**Factory Architecture:**
+```typescript
+// tests/factories/claude-message.factory.ts
+import { faker } from '@faker-js/faker'
+import { ClaudeMessageSchema, type ClaudeMessage } from '../schemas/claude-api.schema'
+
+export function createClaudeMessage(overrides?: Partial<ClaudeMessage>): ClaudeMessage {
+  const message = {
+    id: overrides?.id ?? `msg_${faker.string.alphanumeric(29)}`,
+    type: 'message' as const,
+    role: 'assistant' as const,
+    content: overrides?.content ?? [{
+      type: 'text' as const,
+      text: overrides?.content?.[0]?.text ?? faker.lorem.paragraphs(2)
+    }],
+    model: overrides?.model ?? 'claude-3-5-haiku-20241022',
+    stop_reason: overrides?.stop_reason ?? 'end_turn' as const,
+    usage: {
+      input_tokens: overrides?.usage?.input_tokens ?? faker.number.int({ min: 50, max: 500 }),
+      output_tokens: overrides?.usage?.output_tokens ?? faker.number.int({ min: 100, max: 1000 })
+    }
+  }
+
+  // Validate the generated data matches schema
+  return ClaudeMessageSchema.parse(message)
+}
+```
+
+**Factory Benefits:**
+- **Realistic data:** Faker generates varied, realistic content
+- **Flexible:** Override any field for specific test scenarios
+- **Validated:** Zod ensures every factory output is valid
+- **Deterministic option:** Seed Faker for reproducible tests
+
+**Advanced Factory Patterns:**
+
+1. **Builder Pattern:**
+```typescript
+const feed = new RSSFeedBuilder()
+  .withTitle('Nuxt Blog')
+  .withItem({ title: 'Nuxt 4 Released', pubDate: new Date('2025-11-08') })
+  .withRandomItems(3)
+  .withOldItems(2)  // Should be filtered out
+  .buildXML()
+```
+
+2. **Preset Variations:**
+```typescript
+export const ClaudeMessagePresets = {
+  newsletterSynthesis: () => createClaudeMessage({
+    content: [{ type: 'text', text: '# Vue.js Weekly Newsletter\n...' }]
+  }),
+  rssSubagent: (items = 3) => createClaudeMessage({
+    content: [{ type: 'text', text: `## RSS Results\n...` }]
+  }),
+  apiError: (errorMsg: string) => createClaudeMessage({
+    content: [{ type: 'text', text: `## Error\n${errorMsg}` }]
+  })
+}
+```
+
+3. **Seeded/Deterministic Data:**
+```typescript
+export function withSeed<T>(seed: number, fn: () => T): T {
+  faker.seed(seed)
+  const result = fn()
+  faker.seed() // Reset to random
+  return result
+}
+
+// Usage for snapshot testing
+const message = withSeed(12345, () => ClaudeMessagePresets.newsletterSynthesis())
+expect(message).toMatchSnapshot()
+```
+
+### MSW Integration - Mocking LLM Responses
+
+MSW intercepts HTTP requests to the Anthropic API (`https://api.anthropic.com/v1/messages`) and returns mock responses. This approach mocks at the HTTP layer rather than the SDK layer, making tests more realistic and future-proof.
+
+**Key Benefits:**
+- **Fast:** No API calls, instant responses
+- **Deterministic:** Predictable outputs for consistent testing
+- **Cost-effective:** Zero API costs during development/CI
+- **Offline:** Develop and test without internet connectivity
+- **Realistic:** Tests the full integration path including request formatting
+
+**Handler Architecture:**
+```typescript
+// tests/mocks/handlers.ts
+import { http, HttpResponse } from 'msw'
+import { createClaudeMessage } from '../factories/claude-message.factory'
+import { createRSSFeed } from '../factories/rss-feed.factory'
+
+export const handlers = [
+  // Claude API endpoint - conditional responses based on request
+  http.post('https://api.anthropic.com/v1/messages', async ({ request }) => {
+    const body = await request.json()
+    const systemPrompt = body.system || ''
+
+    if (systemPrompt.includes('RSS Fetcher')) {
+      return HttpResponse.json(createClaudeMessage({
+        content: [{
+          type: 'text',
+          text: '## RSS Feed Results\n### Vue.js Official Blog\n- [Vue 3.5](https://blog.vuejs.org/posts/vue-3-5)'
+        }]
+      }))
+    }
+
+    if (systemPrompt.includes('Reddit Researcher')) {
+      return HttpResponse.json(createClaudeMessage({
+        content: [{
+          type: 'text',
+          text: '## Reddit Discussions\n- [Composition API best practices](https://reddit.com/...) - 45 upvotes'
+        }]
+      }))
+    }
+
+    // Default newsletter synthesis response
+    return HttpResponse.json(createClaudeMessage())
+  }),
+
+  // External data sources
+  http.get('https://blog.vuejs.org/feed.rss', () =>
+    HttpResponse.xml(createRSSFeed())
+  ),
+
+  http.get('https://www.reddit.com/r/vuejs.rss', () =>
+    HttpResponse.xml(createRedditFeed())
+  ),
+
+  http.get('http://hn.algolia.com/api/v1/search', () =>
+    HttpResponse.json(createHNResponse())
+  )
+]
+```
+
+**Test Setup:**
+```typescript
+// tests/setup.ts
+import { setupServer } from 'msw/node'
+import { handlers } from './mocks/handlers'
+
+export const server = setupServer(...handlers)
+
+beforeAll(() => server.listen())
+afterEach(() => server.resetHandlers())
+afterAll(() => server.close())
+```
+
+### Streaming Response Mocking
+
+When the Claude API receives `stream: true`, it returns Server-Sent Events (SSE) instead of a single JSON response. MSW can mock this streaming behavior for realistic tests.
+
+**SSE Event Schema:**
+```typescript
+// tests/schemas/claude-stream.schema.ts
+export const StreamEventSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('message_start'),
+    message: z.object({
+      id: z.string(),
+      type: z.literal('message'),
+      role: z.literal('assistant'),
+      model: z.string()
+    })
+  }),
+  z.object({
+    type: z.literal('content_block_delta'),
+    delta: z.object({
+      type: z.literal('text_delta'),
+      text: z.string()
+    }),
+    index: z.number()
+  }),
+  z.object({
+    type: z.literal('message_delta'),
+    delta: z.object({
+      stop_reason: z.enum(['end_turn', 'max_tokens'])
+    }),
+    usage: z.object({
+      output_tokens: z.number()
+    })
+  })
+])
+```
+
+**Streaming Factory:**
+```typescript
+// tests/factories/claude-stream.factory.ts
+export function createStreamingResponse(text: string) {
+  const chunks = text.match(/.{1,20}/g) || [text]
+
+  return [
+    {
+      type: 'message_start',
+      message: {
+        id: `msg_${faker.string.alphanumeric(29)}`,
+        type: 'message',
+        role: 'assistant',
+        model: 'claude-3-5-haiku-20241022'
+      }
+    },
+    ...chunks.map((chunk) => ({
+      type: 'content_block_delta',
+      delta: { type: 'text_delta', text: chunk },
+      index: 0
+    })),
+    {
+      type: 'message_delta',
+      delta: { stop_reason: 'end_turn' },
+      usage: { output_tokens: chunks.length * 5 }
+    }
+  ]
+}
+```
+
+**MSW Streaming Handler:**
+```typescript
+http.post('https://api.anthropic.com/v1/messages', async ({ request }) => {
+  const body = await request.json()
+
+  if (body.stream) {
+    const events = createStreamingResponse('# Vue.js Weekly Newsletter\n...')
+    const encoder = new TextEncoder()
+
+    const stream = new ReadableStream({
+      start(controller) {
+        for (const event of events) {
+          controller.enqueue(encoder.encode(`event: ${event.type}\n`))
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`))
+        }
+        controller.close()
+      }
+    })
+
+    return new HttpResponse(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+      }
+    })
+  }
+
+  return HttpResponse.json(createClaudeMessage())
+})
+```
+
+### Test Scenarios Pattern
+
+Test scenarios are pre-configured sets of MSW handlers that simulate specific real-world conditions. This makes tests more readable and reusable.
+
+**Happy Path Scenario:**
+```typescript
+// tests/mocks/scenarios/happy-path.ts
+export const happyPathScenario = [
+  http.post('https://api.anthropic.com/v1/messages', async ({ request }) => {
+    // All subagents return successful responses
+    const body = await request.json()
+    const systemPrompt = body.system || ''
+
+    if (systemPrompt.includes('RSS Fetcher')) {
+      return HttpResponse.json(createClaudeMessage({
+        content: [{ type: 'text', text: '## RSS Results\n- [Vue 3.5]...' }]
+      }))
+    }
+
+    return HttpResponse.json(createClaudeMessage())
+  }),
+
+  http.get('https://blog.vuejs.org/feed.rss', () =>
+    HttpResponse.xml(createRSSFeed({ itemCount: 3 }))
+  ),
+
+  http.get('https://www.reddit.com/r/vuejs.rss', () =>
+    HttpResponse.xml(createRedditFeed({ itemCount: 5 }))
+  ),
+
+  http.get('http://hn.algolia.com/api/v1/search', () =>
+    HttpResponse.json(createHNResponse({ hitCount: 4 }))
+  )
+]
+```
+
+**Partial Failure Scenario:**
+```typescript
+// tests/mocks/scenarios/partial-failure.ts
+export const partialFailureScenario = [
+  http.post('https://api.anthropic.com/v1/messages', async ({ request }) => {
+    const body = await request.json()
+    const systemPrompt = body.system || ''
+
+    if (systemPrompt.includes('Reddit Researcher')) {
+      return HttpResponse.json(createClaudeMessage({
+        content: [{
+          type: 'text',
+          text: '## Error\nReddit API returned 503 - Service Unavailable'
+        }]
+      }))
+    }
+
+    return HttpResponse.json(createClaudeMessage())
+  }),
+
+  http.get('https://blog.vuejs.org/feed.rss', () =>
+    HttpResponse.xml(createRSSFeed())
+  ),
+
+  http.get('https://www.reddit.com/r/vuejs.rss', () =>
+    HttpResponse.json({ error: 'Service Unavailable' }, { status: 503 })
+  ),
+
+  http.get('http://hn.algolia.com/api/v1/search', () =>
+    HttpResponse.json(createHNResponse())
+  )
+]
+```
+
+**Using Scenarios in Tests:**
+```typescript
+// tests/newsletter.test.ts
+import { describe, it, expect } from 'vitest'
+import { server } from './setup'
+import { happyPathScenario } from './mocks/scenarios/happy-path'
+import { partialFailureScenario } from './mocks/scenarios/partial-failure'
+import { generateNewsletter } from '../scripts/generate-newsletter'
+
+describe('Newsletter Generation', () => {
+  it('generates complete newsletter when all sources work', async () => {
+    server.use(...happyPathScenario)
+
+    const result = await generateNewsletter()
+
+    expect(result).toContain('# Vue.js Weekly Newsletter')
+    expect(result).toContain('## 🎯 Official Updates')
+    expect(result).toContain('## 💬 Community Highlights')
+  })
+
+  it('handles partial failures gracefully', async () => {
+    server.use(...partialFailureScenario)
+
+    const result = await generateNewsletter()
+
+    expect(result).toContain('# Vue.js Weekly Newsletter')
+    expect(result).toContain('Reddit unavailable')
+  })
+})
+```
 
 ### Test Cases
 
 **1. Happy Path:**
-- All sources return valid data
+- All sources (RSS, Reddit, HN) return valid data
+- Claude API returns properly formatted responses for all subagents
 - Newsletter generated with all sections populated
-- File written to newsletters/ directory
+- File written to `newsletters/` directory
 - Content properly formatted as Markdown
+- All items within 7-day date range
 
 **2. Partial Failures:**
 - RSS feed returns 404 → Newsletter generated with other sources
-- Reddit unavailable → Newsletter notes Reddit unavailable
+- Reddit unavailable (503) → Newsletter notes Reddit unavailable
 - HN times out → Newsletter continues with RSS + Reddit
+- One subagent fails → Main agent continues with remaining data
 
 **3. Data Validation:**
 - Filters out posts older than 7 days
 - Removes duplicate entries across sources
 - Handles empty responses gracefully
+- Validates all URLs before including
+- Ensures minimum content threshold (at least 3 items)
 
 **4. Edge Cases:**
 - No content in date range → "quiet week" message
 - Malformed RSS XML → Log error, skip that feed
 - Invalid URLs → Filter them out
+- All sources fail → Generate newsletter with error message
+
+**5. LLM-Specific Tests:**
+- Claude API returns `max_tokens` stop reason → Handle gracefully
+- Streaming responses work correctly
+- Token usage tracked accurately
+- Different models return expected formats
+
+**6. Streaming Tests:**
+- SSE events arrive in correct order
+- Content chunks reassemble correctly
+- Stream termination handled properly
+- Network interruptions handled gracefully
+
+### Mock Endpoints
+
+All HTTP endpoints are mocked using MSW:
+
+**Claude API:**
+- `POST https://api.anthropic.com/v1/messages` → Mock LLM responses (both regular and streaming)
+
+**External Data Sources:**
+- `GET https://blog.vuejs.org/feed.rss` → Mock RSS XML
+- `GET https://nuxt.com/blog/rss.xml` → Mock RSS XML
+- `GET https://www.reddit.com/r/vuejs.rss` → Mock RSS XML
+- `GET http://hn.algolia.com/api/v1/search*` → Mock JSON responses
 
 ### TDD Workflow
 
 ```bash
-# 1. Write failing test
+# 1. Write failing test with scenario
 pnpm test
 
 # 2. Implement feature
@@ -278,10 +734,27 @@ pnpm test
 pnpm test
 
 # 4. Refactor and clean up
+# Factories and schemas ensure data stays valid
 
-# 5. Optional: Validate with real API
-pnpm run newsletter
+# 5. Optional: Watch mode for rapid iteration
+pnpm test:watch
+
+# 6. Optional: Visual UI for debugging
+pnpm test:ui
+
+# 7. Optional: Validate with real API (integration test)
+REAL_API=true pnpm run newsletter
 ```
+
+### Testing Best Practices
+
+1. **Schema-First:** Define schemas before writing tests or implementation
+2. **Factory Defaults:** Use sensible defaults, override only what matters for the test
+3. **Scenario Reuse:** Create scenarios for common test conditions
+4. **Deterministic Tests:** Use seeded Faker for snapshot tests
+5. **Validate Mocks:** All factory output is validated against schemas
+6. **Separation of Concerns:** Schemas, factories, and scenarios in separate files
+7. **Test Real Integration:** Occasional manual runs against real APIs to validate mocks
 
 ## Environment Setup
 
