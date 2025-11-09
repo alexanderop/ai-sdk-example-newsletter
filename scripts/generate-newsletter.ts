@@ -11,9 +11,6 @@ import {
   saveNewsletterToFile
 } from './orchestration.js'
 
-// Load .env file
-config()
-
 // Re-export for backward compatibility with tests
 export { RedditPostSchema } from './api.js'
 export type { RedditPost } from './utils.js'
@@ -24,15 +21,20 @@ export { retryWithBackoff, validateNewsletterContent } from './utils.js'
 // Newsletter Generation Recipes - The Main Workflows
 // ============================================================================
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || 'test-key'
-})
-
-export async function generateNewsletter(): Promise<string> {
+export async function generateNewsletter(anthropicClient?: Anthropic): Promise<string> {
   console.log('\n🚀 Starting newsletter generation...')
   console.log('='.repeat(60))
 
-  validateEnvironment()
+  // Only load .env and validate environment if no client is injected
+  if (!anthropicClient) {
+    config()
+    validateEnvironment()
+  }
+
+  // Create Anthropic client after validation (or use injected client for testing)
+  const anthropic = anthropicClient || new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY
+  })
 
   // Step 1: Fetch all data sources in parallel
   const data = await fetchAllData()
@@ -52,9 +54,9 @@ export async function generateNewsletter(): Promise<string> {
   return newsletter
 }
 
-export async function generateNewsletterToFile(filename?: string): Promise<string> {
+export async function generateNewsletterToFile(filename?: string, anthropicClient?: Anthropic): Promise<string> {
   // Step 1: Generate newsletter content
-  const newsletter = await generateNewsletter()
+  const newsletter = await generateNewsletter(anthropicClient)
 
   // Step 2: Save to file
   const filePath = saveNewsletterToFile(newsletter, filename)

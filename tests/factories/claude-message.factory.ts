@@ -10,7 +10,7 @@ export function createClaudeMessage(overrides?: Partial<ClaudeMessage>): ClaudeM
       type: 'text' as const,
       text: faker.lorem.paragraphs(2)
     }],
-    model: overrides?.model ?? 'claude-3-5-haiku-20241022',
+    model: overrides?.model ?? 'claude-haiku-4-5-20251001',
     stop_reason: overrides?.stop_reason ?? 'end_turn' as const,
     usage: {
       input_tokens: overrides?.usage?.input_tokens ?? faker.number.int({ min: 50, max: 500 }),

@@ -57,8 +57,22 @@ export const happyPathScenario = [
   }),
 
   http.get('https://www.reddit.com/r/vuejs.rss', () => {
-    return new HttpResponse(createRedditFeedXML({ itemCount: 5, daysOld: 0 }), {
-      headers: { 'Content-Type': 'application/xml' }
+    return new HttpResponse(createRedditFeedXML({
+      itemCount: 5,
+      subreddit: 'vuejs',
+      daysOld: 0
+    }), {
+      headers: { 'Content-Type': 'application/atom+xml; charset=UTF-8' }
+    })
+  }),
+
+  http.get('https://www.reddit.com/r/Nuxt.rss', () => {
+    return new HttpResponse(createRedditFeedXML({
+      itemCount: 3,
+      subreddit: 'Nuxt',
+      daysOld: 0
+    }), {
+      headers: { 'Content-Type': 'application/atom+xml; charset=UTF-8' }
     })
   }),
 

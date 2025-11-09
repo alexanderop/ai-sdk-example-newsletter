@@ -149,4 +149,4 @@ Potential additions based on Claude 4.x capabilities:
 
 - Original implementation: `docs/plans/2025-11-09-vue-newsletter-agent-implementation.md`
 - Design document: `docs/plans/2025-11-09-vue-newsletter-agent-design.md`
-- Claude 4.x prompting guide: https://docs.anthropic.com/en/docs/build-with-claude/prompting-best-practices
+- Claude 4.x prompting guide: https://docs.claude.com/en/docs/build-with-claude/prompt-engineering

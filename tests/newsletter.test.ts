@@ -62,25 +62,52 @@ describe('Newsletter Generation', () => {
     expect(result.length).toBeGreaterThan(100)
   })
 
-  it('should fetch real Vue.js news from web', async () => {
+  it('should fetch Vue.js news using mocked GitHub API', async () => {
     const { fetchVueNews } = await import('../scripts/generate-newsletter')
     const news = await fetchVueNews()
 
+    // Verify we got the deterministic mock data (not live API calls)
     expect(news).toBeDefined()
-    expect(news.length).toBeGreaterThan(0)
-    expect(news[0]).toHaveProperty('title')
-    expect(news[0]).toHaveProperty('url')
+    expect(news.length).toBe(3)
+    expect(news[0]).toEqual({
+      title: 'vue',
+      url: 'https://github.com/vuejs/vue'
+    })
+    expect(news[1]).toEqual({
+      title: 'nuxt',
+      url: 'https://github.com/nuxt/nuxt'
+    })
+    expect(news[2]).toEqual({
+      title: 'vite',
+      url: 'https://github.com/vitejs/vite'
+    })
   })
 
-  it('should fetch GitHub trending Vue repositories', async () => {
+  it('should fetch GitHub trending repositories using mocked API', async () => {
     const { fetchTrendingRepos } = await import('../scripts/generate-newsletter')
     const repos = await fetchTrendingRepos()
 
+    // Verify we got the deterministic mock data (not live API calls)
     expect(repos).toBeDefined()
-    expect(repos.length).toBeGreaterThan(0)
-    expect(repos[0]).toHaveProperty('name')
-    expect(repos[0]).toHaveProperty('description')
-    expect(repos[0]).toHaveProperty('url')
+    expect(repos.length).toBe(3)
+    expect(repos[0]).toEqual({
+      name: 'vue',
+      description: 'The Progressive JavaScript Framework',
+      url: 'https://github.com/vuejs/vue',
+      stars: 210000
+    })
+    expect(repos[1]).toEqual({
+      name: 'nuxt',
+      description: 'The Intuitive Vue Framework',
+      url: 'https://github.com/nuxt/nuxt',
+      stars: 50000
+    })
+    expect(repos[2]).toEqual({
+      name: 'vite',
+      description: 'Next Generation Frontend Tooling',
+      url: 'https://github.com/vitejs/vite',
+      stars: 65000
+    })
   })
 
   it('should generate newsletter with real data and no placeholders', async () => {
@@ -228,15 +255,24 @@ More content`
     const { fetchRedditPosts } = await import('../scripts/generate-newsletter')
     const posts = await fetchRedditPosts()
 
+    // Verify we got deterministic mock data from both subreddits
     expect(posts).toBeDefined()
     expect(Array.isArray(posts)).toBe(true)
-    if (posts.length > 0) {
-      expect(posts[0]).toHaveProperty('title')
-      expect(posts[0]).toHaveProperty('link')
-      expect(posts[0]).toHaveProperty('pubDate')
-      expect(posts[0]).toHaveProperty('subreddit')
-      expect(posts[0].pubDate).toBeInstanceOf(Date)
-    }
+    expect(posts.length).toBe(8) // 5 from vuejs + 3 from Nuxt
+
+    // Verify posts have required fields
+    posts.forEach((post) => {
+      expect(post).toHaveProperty('title')
+      expect(post).toHaveProperty('link')
+      expect(post).toHaveProperty('pubDate')
+      expect(post).toHaveProperty('subreddit')
+      expect(post.pubDate).toBeInstanceOf(Date)
+    })
+
+    // Verify posts from both subreddits are present
+    const subreddits = posts.map(p => p.subreddit)
+    expect(subreddits).toContain('vuejs')
+    expect(subreddits).toContain('Nuxt')
   })
 
   it('should filter Reddit posts by date', async () => {
