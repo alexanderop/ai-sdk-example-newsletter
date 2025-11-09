@@ -19,7 +19,8 @@ export function createDevToArticle(daysOld: number = 0, minReactions: number = 5
     published_at: publishedAt.toISOString(),
     public_reactions_count: faker.number.int({ min: minReactions, max: 200 }),
     comments_count: faker.number.int({ min: 0, max: 50 }),
-    tags,
+    tags: tags.join(', '), // comma-separated string
+    tag_list: tags, // array of tags
     user: {
       name: faker.person.fullName()
     }

@@ -8,7 +8,8 @@ type DevToArticle = {
   published_at: string
   public_reactions_count: number
   comments_count: number
-  tags: string[]
+  tags: string // comma-separated string
+  tag_list: string[] // array of tags
   user?: { name: string }
 }
 
@@ -36,7 +37,7 @@ export class DevToResource implements Resource {
         date: article.published_at ? new Date(article.published_at) : undefined,
         score: article.public_reactions_count,
         comments: article.comments_count,
-        description: article.tags?.length ? `#${article.tags.join(' #')}` : undefined,
+        description: article.tag_list?.length ? `#${article.tag_list.join(' #')}` : undefined,
         source: this.source
       }))
   }

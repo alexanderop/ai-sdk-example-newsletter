@@ -7,7 +7,8 @@ export const DevToArticleSchema = z.object({
   published_at: z.string(),
   public_reactions_count: z.number(),
   comments_count: z.number(),
-  tags: z.array(z.string()),
+  tags: z.string(), // comma-separated string like "vue, javascript, webdev"
+  tag_list: z.array(z.string()), // array of tags
   user: z.object({
     name: z.string()
   }).optional()
