@@ -44,19 +44,20 @@ interface GitHubSearchResponse {
 // ============================================================================
 
 export function validateEnvironment(): void {
-  // Check if .env file exists
-  const envPath = join(process.cwd(), '.env')
-  if (!existsSync(envPath)) {
-    throw new Error(
-      '❌ .env file not found!\n\n'
-      + 'Please create a .env file in the project root with your Anthropic API key:\n'
-      + 'ANTHROPIC_API_KEY=your_api_key_here\n\n'
-      + 'You can get your API key from: https://console.anthropic.com/'
-    )
-  }
-
   // Check if API key is set
   if (!process.env.ANTHROPIC_API_KEY) {
+    // Only check for .env file if API key is not in environment
+    // (In CI/CD environments, API key might be set directly without .env file)
+    const envPath = join(process.cwd(), '.env')
+    if (!existsSync(envPath)) {
+      throw new Error(
+        '❌ .env file not found!\n\n'
+        + 'Please create a .env file in the project root with your Anthropic API key:\n'
+        + 'ANTHROPIC_API_KEY=your_api_key_here\n\n'
+        + 'You can get your API key from: https://console.anthropic.com/'
+      )
+    }
+
     throw new Error(
       '❌ ANTHROPIC_API_KEY not found in environment!\n\n'
       + 'Please add your Anthropic API key to the .env file:\n'
