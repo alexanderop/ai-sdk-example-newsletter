@@ -61,10 +61,10 @@ This project uses GitHub Actions for automated quality gates and continuous inte
 - Warns on large PRs (>50 files or >1000 lines)
 - Helps maintain reviewable PR sizes
 
-#### 🔒 Dependency Review
-- Security analysis of dependency changes
-- Fails on moderate+ severity vulnerabilities
-- Blocks GPL-3.0 and AGPL-3.0 licenses
+#### 🔒 Dependency Security
+- **Dependency Review**: GitHub Advanced Security feature (public repos only or private with GHAS)
+- **Dependency Audit**: Uses `pnpm audit` for security scanning
+- Checks for moderate+ severity vulnerabilities
 - Only runs for PRs to `main` branch
 
 **Estimated Runtime**: 1-2 minutes
@@ -205,19 +205,23 @@ open coverage/index.html
 
 ### ❌ Dependency Security Issues
 
-**Problem**: Dependency review finds vulnerabilities
+**Problem**: Dependency audit finds vulnerabilities
 
 **Solution**:
 ```bash
-# Update vulnerable dependencies
-pnpm update
-
 # Check for security issues
 pnpm audit
 
-# Fix automatically if possible
-pnpm audit fix
+# View detailed report
+pnpm audit --json
+
+# Update vulnerable dependencies
+pnpm update
+
+# Note: pnpm doesn't have 'audit fix' - update packages manually
 ```
+
+**For private repositories**: The GitHub Dependency Review action requires GitHub Advanced Security (paid feature). We use `pnpm audit` as an alternative for security scanning on all repositories.
 
 ---
 

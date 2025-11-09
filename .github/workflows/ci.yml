@@ -131,10 +131,19 @@ jobs:
 
     steps:
       - name: Check all jobs status
+        env:
+          QUALITY_CHECKS_RESULT: ${{ needs.quality-checks.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          NEWSLETTER_RESULT: ${{ needs.newsletter-validation.result }}
         run: |
-          if [[ "${{ needs.quality-checks.result }}" != "success" || \
-                "${{ needs.build.result }}" != "success" || \
-                "${{ needs.newsletter-validation.result }}" != "success" ]]; then
+          echo "Quality Checks: ${QUALITY_CHECKS_RESULT}"
+          echo "Build: ${BUILD_RESULT}"
+          echo "Newsletter Validation: ${NEWSLETTER_RESULT}"
+          echo ""
+
+          if [[ "${QUALITY_CHECKS_RESULT}" != "success" || \
+                "${BUILD_RESULT}" != "success" || \
+                "${NEWSLETTER_RESULT}" != "success" ]]; then
             echo "❌ One or more quality gates failed"
             exit 1
           fi
