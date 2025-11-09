@@ -147,6 +147,41 @@ describe('Newsletter Generation', (): void => {
     })
   })
 
+  it('should fetch from DEV.to resource adapter', async (): Promise<void> => {
+    server.use(...happyPathScenario)
+
+    const { DevToResource } = await import('../scripts/core/resources/adapters/devto')
+
+    const resource = new DevToResource({
+      id: 'test-devto',
+      kind: 'json',
+      url: 'https://dev.to/api/articles?tag=vue&top=7&per_page=20',
+      tag: 'DEV.to #vue',
+      limit: 10
+    })
+
+    const items = await resource.fetch()
+
+    expect(items).toBeDefined()
+    expect(Array.isArray(items)).toBe(true)
+    expect(items.length).toBeGreaterThan(0)
+    expect(items.length).toBeLessThanOrEqual(10)
+
+    // Verify sorting by reactions (descending)
+    for (let i = 0; i < items.length - 1; i++) {
+      expect(items[i].score ?? 0).toBeGreaterThanOrEqual(items[i + 1].score ?? 0)
+    }
+
+    items.forEach((item): void => {
+      expect(item).toHaveProperty('title')
+      expect(item).toHaveProperty('url')
+      expect(item.source).toContain('DEV.to')
+      expect(item).toHaveProperty('score') // reactions
+      expect(item).toHaveProperty('comments')
+      expect(item).toHaveProperty('description') // tags formatted
+    })
+  })
+
   it('should use ResourceRegistry to collect from multiple sources', async (): Promise<void> => {
     server.use(...happyPathScenario)
 
