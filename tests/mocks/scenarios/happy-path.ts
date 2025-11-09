@@ -39,7 +39,7 @@ export const happyPathScenario = [
     return HttpResponse.json(createClaudeMessage({
       content: [{
         type: 'text',
-        text: '# Vue.js Weekly Newsletter\n## 🎯 Official Updates\n- Vue 3.5 Released'
+        text: '# Vue.js Weekly Newsletter\n## 🎯 Official Updates\n- Vue 3.5 Released\n\n## 💬 Community Highlights\n- Best practices discussion'
       }]
     }))
   }),
