@@ -5,7 +5,7 @@ import { createHNResponse } from '../../factories/hn-stories.factory'
 
 export const partialFailureScenario = [
   http.post('https://api.anthropic.com/v1/messages', async ({ request }) => {
-    const body = await request.json() as any
+    const body = await request.json() as { system?: string }
     const systemPrompt = body.system || ''
 
     if (systemPrompt.includes('RSS Fetcher')) {

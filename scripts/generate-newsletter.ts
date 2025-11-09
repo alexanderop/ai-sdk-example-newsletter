@@ -45,10 +45,10 @@ export async function generateNewsletterToFile(filename?: string): Promise<strin
 // CLI entry point
 if (import.meta.url === `file://${process.argv[1]}`) {
   generateNewsletterToFile()
-    .then(filePath => {
+    .then((filePath) => {
       console.log(`✅ Newsletter generated: ${filePath}`)
     })
-    .catch(error => {
+    .catch((error) => {
       console.error('Error generating newsletter:', error)
       process.exit(1)
     })
