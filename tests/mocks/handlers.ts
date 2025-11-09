@@ -108,9 +108,21 @@ Generated on: ${new Date().toISOString()}
 
   http.get('https://www.reddit.com/r/vuejs.rss', () => {
     return new HttpResponse(createRedditFeedXML({
-      itemCount: 5
+      itemCount: 5,
+      subreddit: 'vuejs',
+      daysOld: 0
     }), {
-      headers: { 'Content-Type': 'application/xml' }
+      headers: { 'Content-Type': 'application/atom+xml; charset=UTF-8' }
+    })
+  }),
+
+  http.get('https://www.reddit.com/r/Nuxt.rss', () => {
+    return new HttpResponse(createRedditFeedXML({
+      itemCount: 3,
+      subreddit: 'Nuxt',
+      daysOld: 0
+    }), {
+      headers: { 'Content-Type': 'application/atom+xml; charset=UTF-8' }
     })
   }),
 
@@ -118,5 +130,38 @@ Generated on: ${new Date().toISOString()}
     return HttpResponse.json(createHNResponse({
       hitCount: 4
     }))
+  }),
+
+  // GitHub API - Search repositories
+  http.get('https://api.github.com/search/repositories', ({ request }) => {
+    const url = new URL(request.url)
+    const query = url.searchParams.get('q')
+
+    if (query?.includes('vue')) {
+      return HttpResponse.json({
+        items: [
+          {
+            name: 'vue',
+            description: 'The Progressive JavaScript Framework',
+            html_url: 'https://github.com/vuejs/vue',
+            stargazers_count: 210000
+          },
+          {
+            name: 'nuxt',
+            description: 'The Intuitive Vue Framework',
+            html_url: 'https://github.com/nuxt/nuxt',
+            stargazers_count: 50000
+          },
+          {
+            name: 'vite',
+            description: 'Next Generation Frontend Tooling',
+            html_url: 'https://github.com/vitejs/vite',
+            stargazers_count: 65000
+          }
+        ]
+      })
+    }
+
+    return HttpResponse.json({ items: [] })
   })
 ]

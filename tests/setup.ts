@@ -1,11 +1,14 @@
 import { setupServer } from 'msw/node'
-import { beforeAll, afterEach, afterAll } from 'vitest'
+import { beforeAll, afterEach, afterAll, vi } from 'vitest'
 import { handlers } from './mocks/handlers'
 
 export const server = setupServer(...handlers)
 
 // Start server before all tests
 beforeAll(() => {
+  // Set up test environment variable
+  process.env.ANTHROPIC_API_KEY = 'test-api-key-for-testing'
+
   server.listen({ onUnhandledRequest: 'error' })
 })
 
