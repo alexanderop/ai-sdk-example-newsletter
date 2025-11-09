@@ -3,6 +3,7 @@ import { createClaudeMessage } from '../../factories/claude-message.factory'
 import { createRSSFeedXML } from '../../factories/rss-feed.factory'
 import { createRedditFeedXML } from '../../factories/reddit-feed.factory'
 import { createHNResponse } from '../../factories/hn-stories.factory'
+import { createDevToResponse } from '../../factories/devto-articles.factory'
 
 export const happyPathScenario = [
   http.post('https://api.anthropic.com/v1/messages', async ({ request }): Promise<HttpResponse> => {
@@ -78,5 +79,28 @@ export const happyPathScenario = [
 
   http.get('https://hn.algolia.com/api/v1/search', (): HttpResponse => {
     return HttpResponse.json(createHNResponse({ hitCount: 4, daysOld: 0 }))
+  }),
+
+  http.get('https://dev.to/api/articles', ({ request }): HttpResponse => {
+    const url = new URL(request.url)
+    const tag = url.searchParams.get('tag')
+
+    if (tag === 'vue') {
+      return HttpResponse.json(createDevToResponse({
+        articleCount: 10,
+        daysOld: 0,
+        tags: ['vue', 'javascript']
+      }))
+    }
+
+    if (tag === 'nuxt') {
+      return HttpResponse.json(createDevToResponse({
+        articleCount: 8,
+        daysOld: 0,
+        tags: ['nuxt', 'vue']
+      }))
+    }
+
+    return HttpResponse.json([])
   })
 ]
