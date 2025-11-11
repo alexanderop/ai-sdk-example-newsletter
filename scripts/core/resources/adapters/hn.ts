@@ -1,10 +1,11 @@
-import type { Resource, Item, ResourceConfig } from '../types.js'
+import type { Resource, Item, ResourceConfig, ContentCategory } from '../types.js'
 import { getJson } from '../../fetch/http.js'
 import { HNSearchResponseSchema, type HNStory } from '../../../../schemas/hn.js'
 import { ZodError } from 'zod'
 
 export class HNResource implements Resource {
   public id: string
+  public category: ContentCategory = 'discussions'
   private url: string
   private minScore: number
   private limit: number

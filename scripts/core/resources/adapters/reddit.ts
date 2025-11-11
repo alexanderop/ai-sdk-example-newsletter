@@ -1,4 +1,4 @@
-import type { Resource, Item, ResourceConfig } from '../types.js'
+import type { Resource, Item, ResourceConfig, ContentCategory } from '../types.js'
 import { getText } from '../../fetch/http.js'
 import { parseAtomEntries, toDate } from '../../fetch/parsers.js'
 import { z, ZodError } from 'zod'
@@ -13,6 +13,7 @@ const ParsedAtomArraySchema = z.array(ParsedAtomEntrySchema)
 
 export class RedditResource implements Resource {
   public id: string
+  public category: ContentCategory = 'discussions'
   private url: string
   private tag: string
   private limit: number

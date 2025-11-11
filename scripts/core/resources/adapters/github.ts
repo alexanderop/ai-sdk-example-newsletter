@@ -1,10 +1,11 @@
-import type { Resource, Item, ResourceConfig } from '../types.js'
+import type { Resource, Item, ResourceConfig, ContentCategory } from '../types.js'
 import { getJson } from '../../fetch/http.js'
 import { GitHubSearchResponseSchema, type GitHubRepo } from '../../../../schemas/github.js'
 import { ZodError } from 'zod'
 
 export class GitHubSearchResource implements Resource {
   public id: string
+  public category: ContentCategory = 'repos'
   private url: string
   private limit: number
 
