@@ -202,7 +202,7 @@ describe('Newsletter Generation', (): void => {
       limit: 10
     })
 
-    const collected = await registry.collect()
+    const { results: collected } = await registry.collect()
 
     expect(collected).toHaveProperty('github-test')
     expect(collected).toHaveProperty('reddit-test')
@@ -224,7 +224,7 @@ describe('Newsletter Generation', (): void => {
       limit: 10
     })
 
-    const collected = await registry.collect()
+    const { results: collected } = await registry.collect()
 
     expect(collected).toHaveProperty('devto-vue')
     expect(Array.isArray(collected['devto-vue'])).toBe(true)
@@ -320,7 +320,7 @@ More content`
       limit: 10
     })
 
-    const collected = await registry.collect()
+    const { results: collected } = await registry.collect()
 
     // Verify both sources collected articles
     expect(collected['devto-vue']).toBeDefined()
@@ -339,13 +339,18 @@ More content`
     })
   })
 
-  it('should throw error when resource validation fails', async (): Promise<void> => {
+  it('should handle validation errors gracefully and continue with partial data', async (): Promise<void> => {
     const { seedValidationError } = await import('./fixtures/validation-error-seed')
     await seedValidationError()
 
     const { generateNewsletter } = await import('../scripts/pipelines/newsletter')
     const mockClient = createMockLLMClient()
 
-    await expect(generateNewsletter(mockClient)).rejects.toThrow('Resource validation failed')
+    // Should not throw - graceful degradation with logged errors
+    const result = await generateNewsletter(mockClient)
+
+    // Newsletter still generates despite validation failure
+    expect(result.text).toContain('# Vue.js Weekly Newsletter')
+    expect(result.text.length).toBeGreaterThan(100)
   })
 })
