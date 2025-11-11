@@ -1,5 +1,7 @@
 export type ResourceKind = 'rss' | 'atom' | 'json' | 'github' | 'custom'
 
+export type ContentCategory = 'articles' | 'repos' | 'discussions' | 'news'
+
 export interface ResourceConfig {
   id: string
   kind: ResourceKind
@@ -22,5 +24,6 @@ export interface Item {
 
 export interface Resource {
   id: string
+  category: ContentCategory
   fetch(): Promise<Item[]>
 }
