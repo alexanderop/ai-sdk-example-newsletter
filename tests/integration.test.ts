@@ -414,7 +414,7 @@ describe('Integration Tests', (): void => {
         model: 'claude-haiku-4-5-20251001',
         stop_reason: 'end_turn',
         usage: { input_tokens: 10, output_tokens: 0 }
-      } as unknown as Awaited<ReturnType<typeof client['client'].messages.create>>)
+      } as unknown as Awaited<ReturnType<(typeof client)['client']['messages']['create']>>)
 
       const result = await client.generate([{ role: 'user', content: 'test' }])
 
