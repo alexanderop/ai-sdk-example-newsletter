@@ -159,7 +159,9 @@ The project uses **shared Zod schemas** in `/schemas/` for both application and 
 - Runtime validation catches API changes immediately with detailed error messages
 
 **Error Handling:**
-If an API response doesn't match the schema, adapters gracefully degrade by:
-1. Logging validation errors to console with `[resource-id]` prefix
-2. Returning empty results instead of crashing
+If an API response doesn't match the schema, adapters fail fast by:
+1. Logging validation errors to console with `[resource-id]` prefix and detailed Zod issues
+2. Throwing an error (`Resource validation failed for ${resource-id}`) to halt execution
 3. Re-throwing network errors and unexpected exceptions
+
+This fail-fast approach ensures invalid data never propagates into the newsletter generation pipeline.
