@@ -14,7 +14,15 @@ export class GitHubSearchResource implements Resource {
     this.id = cfg.id
     this.limit = cfg.limit ?? 5
     this.url = cfg.url // full query passed via config
-    this.priority = cfg.priority ?? 3
+
+    // Validate and set priority
+    const configPriority = cfg.priority ?? 3
+    if (configPriority < 1 || configPriority > 5) {
+      console.warn(`[${cfg.id}] Invalid priority ${configPriority}, using default 3`)
+      this.priority = 3
+    } else {
+      this.priority = configPriority as 1 | 2 | 3 | 4 | 5
+    }
   }
 
   public async fetch(): Promise<Item[]> {

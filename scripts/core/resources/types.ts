@@ -2,6 +2,8 @@ export type ResourceKind = 'rss' | 'atom' | 'json' | 'github' | 'custom'
 
 export type ContentCategory = 'articles' | 'repos' | 'discussions' | 'news'
 
+export type Priority = 1 | 2 | 3 | 4 | 5
+
 export interface ResourceConfig {
   id: string
   kind: ResourceKind
@@ -9,7 +11,7 @@ export interface ResourceConfig {
   minScore?: number // optional filter (e.g., HN points)
   limit?: number
   tag?: string // subreddit, label, etc
-  priority?: number // 1=lowest, 5=highest (default=3)
+  priority?: Priority // 1=lowest, 5=highest (default=3)
 }
 
 export interface Item {
@@ -21,12 +23,12 @@ export interface Item {
   description?: string
   stars?: number
   source: string // human-friendly source name
-  priority?: number // inherited from resource config (1-5)
+  priority?: Priority // inherited from resource config (1-5)
 }
 
 export interface Resource {
   id: string
   category: ContentCategory
-  priority: number // 1=lowest, 5=highest (default=3)
+  priority: Priority // 1=lowest, 5=highest (default=3)
   fetch(): Promise<Item[]>
 }
