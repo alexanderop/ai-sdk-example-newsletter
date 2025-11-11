@@ -23,6 +23,7 @@ coverage/
 .fleet
 .idea
 .worktrees/
+temp-*.ts
 
 # Local env files
 .env

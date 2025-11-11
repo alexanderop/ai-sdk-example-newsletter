@@ -32,8 +32,8 @@ export class ResourceRegistry {
   }
 
   public async collect(): Promise<{
-    results: Record<string, Item[]>,
-    errors: Record<string, Error>,
+    results: Record<string, Item[]>
+    errors: Record<string, Error>
     resources: Resource[]
   }> {
     const results: Record<string, Item[]> = {}

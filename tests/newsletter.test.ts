@@ -402,7 +402,7 @@ More content`
       limit: 5
     })
 
-    const { results, errors: _errors } = await registry.collect()
+    const { results } = await registry.collect()
 
     // Verify successful resource has data
     expect(results['devto-vue']).toBeDefined()
