@@ -1,4 +1,4 @@
-import type { Resource, Item, ResourceConfig } from '../types.js'
+import type { Resource, Item, ResourceConfig, ContentCategory } from '../types.js'
 import { getText } from '../../fetch/http.js'
 import { parseRSSItems } from '../../fetch/parsers.js'
 import { z, ZodError } from 'zod'
@@ -13,6 +13,7 @@ const ParsedRSSArraySchema = z.array(ParsedRSSItemSchema)
 
 export class RSSResource implements Resource {
   public id: string
+  public category: ContentCategory = 'articles'
   private url: string
   private sourceName: string
   private limit: number
