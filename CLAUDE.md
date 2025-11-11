@@ -61,7 +61,7 @@ This is a Nuxt 4 application with an integrated Vue.js newsletter generator powe
 
 ### Before Committing
 
-1. **Run linting** - Execute `pnpm lint:fast` (quick) or `pnpm lint` (thorough)
+1. **Run linting** - Execute `pnpm lint`
 2. **Run all tests** - Execute `pnpm test` to ensure nothing broke
 3. **Review your changes** - Use `git diff` to check what you're committing
 4. **Write clear commit messages** - Follow conventional commits format
@@ -86,8 +86,7 @@ pnpm typecheck        # Run TypeScript type checking
 
 ### Code Quality
 ```bash
-pnpm lint             # Run ESLint (comprehensive, slower)
-pnpm lint:fast        # Run oxlint (fast, recommended for dev)
+pnpm lint             # Run ESLint with oxlint
 pnpm lint:type-aware  # Run oxlint with type checking
 ```
 

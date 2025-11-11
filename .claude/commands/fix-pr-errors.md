@@ -40,7 +40,7 @@ Fetch all CI/CD errors from an open pull request using GitHub CLI and automatica
    - Determine if errors are related or independent
 
 5. **Fix all identified issues:**
-   - For linting errors: Run `pnpm lint:fast` locally to see errors, then fix them
+   - For linting errors: Run `pnpm lint` locally to see errors, then fix them
    - For type errors: Run `pnpm typecheck` locally, then fix them
    - For test failures: Run `pnpm test` locally, analyze failures, then fix them
    - For build errors: Run `pnpm build` locally, analyze failures, then fix them
@@ -49,7 +49,7 @@ Fetch all CI/CD errors from an open pull request using GitHub CLI and automatica
 
 6. **Verify fixes:**
    - Run all relevant commands locally to confirm fixes:
-     - `pnpm lint:fast` (no errors)
+     - `pnpm lint` (no errors)
      - `pnpm typecheck` (no errors)
      - `pnpm test` (all passing)
      - `pnpm build` (successful)

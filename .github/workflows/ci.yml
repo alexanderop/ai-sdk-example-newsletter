@@ -37,10 +37,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run fast linting (oxlint)
-        run: pnpm run lint:fast
-
-      - name: Run comprehensive linting (ESLint)
+      - name: Run linting
         run: pnpm run lint
 
       - name: Run type checking
