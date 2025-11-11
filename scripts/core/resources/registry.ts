@@ -53,6 +53,6 @@ export class ResourceRegistry {
       }
     })
 
-    return { results, errors, resources: this.resources }
+    return { results, errors, resources: [...this.resources] }
   }
 }

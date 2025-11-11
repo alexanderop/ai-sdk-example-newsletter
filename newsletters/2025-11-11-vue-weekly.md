@@ -1,72 +1,52 @@
 # Vue.js Weekly Newsletter
-**November 11, 2025**
+**November 12, 2025**
 
 ---
 
-## Welcome to This Week's Vue.js Ecosystem Update
+## Featured Articles & Tutorials
 
-This week brings a diverse collection of practical projects, community discussions, and educational content that showcase the breadth of Vue.js applications. From real-time messaging platforms to specialized UI components, the ecosystem continues to expand with solutions addressing real-world development challenges. Let's dive into what's trending and what the community is talking about.
+This week brings excellent technical content from Alex Opalic's blog, covering advanced patterns and emerging technologies that are reshaping how Vue developers build applications.
 
----
+**[Understanding Claude Code's Full Stack: MCP, Skills, Subagents, and Hooks Explained](https://alexop.dev/posts/understanding-claude-code-full-stack/)** (Nov 9) explores the architecture behind Claude Code, providing valuable context for developers interested in AI-assisted development workflows. This complements the practical guide that follows.
 
-## 🔥 Trending Vue.js Repositories
+**[Building My First Claude Code Plugin](https://alexop.dev/posts/building-my-first-claude-code-plugin/)** (Nov 8) offers hands-on experience with Claude Code plugins, demonstrating how Vue developers can leverage AI tooling in their development process.
 
-The community has been active with several compelling projects that demonstrate Vue.js versatility across different domains:
+For those working with Nuxt, **[Building a Modular Monolith with Nuxt Layers: A Practical Guide](https://alexop.dev/posts/nuxt-layers-modular-monolith/)** (Nov 2) provides essential patterns for scaling applications while maintaining clean architecture. This is particularly valuable for teams managing complex projects.
 
-**[Point-of-sale](https://github.com/Ally1999/Point-of-sale)** - A straightforward point-of-sale application built with Vue.js and MS-SQL running locally. This project is particularly valuable for developers working on retail or service-based applications who need a reference implementation for transaction management and local database integration.
+State management enthusiasts will appreciate the Pinia-focused content: **[How to Handle API Calls in Pinia with The Elm Pattern](https://alexop.dev/posts/handling-api-calls-pinia-elm-pattern/)** (Oct 17) and **[How to Write Better Pinia Stores with the Elm Pattern](https://alexop.dev/posts/tea-architecture-pinia-private-store-pattern/)** (Oct 3) both explore the Elm Pattern as a robust approach to managing side effects and state.
 
-**[VueSIP](https://github.com/ironyh/VueSIP)** - A Dailpad interface for Asterisk written in Vue and PrimeVue. This specialized project bridges Vue.js with telecommunications infrastructure, making it relevant for developers building VoIP solutions or communication platforms that require sophisticated UI components.
-
-**[vue-go-messenger](https://github.com/M1mingY/vue-go-messenger)** - EchoChat is a full-stack real-time messaging application that pairs Vue 3 on the frontend with Go on the backend. Supporting one-on-one and group chat, file sharing, and WebSocket-based communication, this project exemplifies modern full-stack architecture and is an excellent reference for developers building collaborative applications.
-
-**[vue-colorjs-picker](https://github.com/moraleja39/vue-colorjs-picker)** - A color picker component for Vue that mimics the colorjs.io elements with support for oklch color space. This component fills a gap for developers needing advanced color selection capabilities with modern color space support.
-
-**[apuestasVue](https://github.com/alejanf2885/apuestasVue)** - A Vue.js project demonstrating application development in the gaming or betting domain.
+Additional resources worth exploring include **[How to build Microfrontends with Module Federation and Vue](https://alexop.dev/posts/how-to-build-microfrontends-with-module-federation-and-vue/)** (Sep 10) for enterprise-scale applications, **[What Is the Model Context Protocol (MCP)? How It Works](https://alexop.dev/posts/what-is-model-context-protocol-mcp/)** (Aug 10) for understanding emerging standards, **[How VueUse Solves SSR Window Errors in Vue Applications](https://alexop.dev/posts/how-vueuse-solves-ssr-window-errors-vue-applications/)** (Jul 14) for SSR challenges, and **[Mastering GraphQL Fragments in Vue 3: Component-Driven Data Fetching](https://alexop.dev/posts/mastering-graphql-fragments-vue3-component-driven-data-fetching/)** (Jul 6) for modern data fetching patterns.
 
 ---
 
-## 💬 Community Discussions
+## Trending Repositories
 
-The Vue.js community has been actively discussing several important topics this week:
+The Vue.js community continues to explore innovative applications and integrations. Here are this week's notable projects:
 
-**Cross-Platform Development Considerations** - A discussion on [Vue+NativeScript versus React+Expo](https://www.reddit.com/r/vuejs/comments/1ou794y/what_do_i_lose_using_vuenativescript_rather_than/) sparked conversation about framework trade-offs when building mobile applications. This reflects ongoing interest in Vue.js's mobile capabilities and how they compare to established alternatives.
+**[kind_robots](https://github.com/silasfelinus/kind_robots)** ⭐ 9 - A modular NLP Promptbots project built with Vue 3.2, Nuxt 3, Prisma, and Nuxt Content. This project demonstrates how Vue can power AI-driven applications with a modern tech stack.
 
-**Component Architecture** - Multiple discussions emerged around [importing variables from other Vue files](https://www.reddit.com/r/vuejs/comments/1ou3pjq/importing_variables_from_another_vue_file/) and [accessing components](https://www.reddit.com/r/vuejs/comments/1otkyns/question_about_accessing_components/), indicating that developers continue to seek best practices for component organization and state management.
+**[JourneyCalendar](https://github.com/MrVitor0/JourneyCalendar)** - A travel-focused global calendar application showcasing Vue's capabilities for UX-intensive projects. The implementation converts reminder city/time data to latitude/longitude coordinates via the Open-Meteo API and displays weather forecasts. It supports multiple time zones with elegant overflow handling—a great example of practical Vue development for real-world use cases.
 
-**Map Library Integration** - Both the [r/vuejs](https://www.reddit.com/r/vuejs/comments/1ou2zdl/share_the_problems_you_face_when_working_with_map/) and [r/Nuxt](https://www.reddit.com/r/Nuxt/comments/1ou2z5w/share_the_problems_you_face_when_working_with_map/) communities shared experiences with map libraries, suggesting this remains a pain point for developers building location-based applications.
+**[vue-dsfr-nuxt-module](https://github.com/laruiss/vue-dsfr-nuxt-module)** ⭐ 1 - A Nuxt 3 module for VueDsfr, contributing to the ecosystem of design system integrations.
 
-**Nuxt Ecosystem Growth** - The community highlighted [free Nuxt & shadcn templates](https://www.reddit.com/r/Nuxt/comments/1otqib8/3_nuxt_shadcn_template_for_free/) and a [Claude Code skill for Nuxt Content documentation](https://www.reddit.com/r/Nuxt/comments/1otqhzb/created_a_claude_code_skill_that_helps_fetch/), demonstrating the expanding tooling and resource ecosystem around Nuxt.
-
-**Framework-Specific Challenges** - Discussions about [VuePress 2 dynamic page generation](https://www.reddit.com/r/vuejs/comments/1oti1fk/how_to_dynamically_add_pages_for_search_indexing/) and [Nuxt routing issues](https://www.reddit.com/r/Nuxt/comments/1othau6/pages_from_one_route_doesnt_render/) show developers working through real implementation challenges.
+**[updikeortho](https://github.com/roostergrin/updikeortho)** and **[reservation-platforme-vueJs](https://github.com/Medrhz/reservation-platforme-vueJs)** represent additional community projects in active development.
 
 ---
 
-## 📚 Featured Articles & Tutorials
+## Community Discussions
 
-The DEV.to community has published valuable content for Vue.js developers this week:
+The Vue.js and Nuxt communities remain active with developers sharing challenges and solutions:
 
-**[New Modern Stack for Fullstack Apps](https://dev.to/is_bik/new-modern-stack-for-fullstack-apps-3jei)** (Nov 8) - Exploring a contemporary tech stack combining Bun.js, Elysia, Vue, and Drizzle. This article is particularly relevant for developers evaluating modern alternatives to traditional Node.js stacks. ❤️ 5
+**Cross-Platform Development** - [What do I lose using Vue+NativeScript rather than React+Expo?](https://www.reddit.com/r/vuejs/comments/1ou794y/what_do_i_lose_using_vuenativescript_rather_than/) sparked discussion about Vue's mobile development options compared to React alternatives.
 
-**[Jordium Gantt Vue3 v1.4.2 – Modern Gantt Chart Component for Vue 3](https://dev.to/nelson_li_c5265341756c7ab/coming-soon-jordium-gantt-vue3-v142-modern-gantt-chart-component-for-vue-3-1kk0)** (Nov 7) - An announcement for an upcoming Gantt chart component, valuable for developers building project management or scheduling applications. ❤️ 5
+**State Management & Component Architecture** - Developers continue seeking clarity on best practices, with questions about [importing variables from another Vue file](https://www.reddit.com/r/vuejs/comments/1ou3pjq/importing_variables_from_another_vue_file/) and [accessing components](https://www.reddit.com/r/vuejs/comments/1otkyns/question_about_accessing_components/).
 
-**[Vue School Free Weekend 2025 – Learn Vue for $0!](https://dev.to/chiara_porcelli_df7ef20dc/vue-school-free-weekend-2025-learn-vue-for-0-1gi3)** (Nov 6) - A timely reminder about free learning opportunities from Vue School, covering both Vue and Nuxt. ❤️ 2
+**Map Library Integration** - A particularly active discussion emerged around [working with map libraries](https://www.reddit.com/r/vuejs/comments/1ou2zdl/share_the_problems_you_face_when_working_with_map/), with parallel conversations in both r/vuejs and r/Nuxt communities, indicating this is a common pain point worth exploring.
 
-**[How to Write Generic Components (React, Vue)](https://dev.to/zz_oo_b49409b43e3e42b0457/how-to-write-generic-components-react-vue-pao)** (Nov 11) - A cross-framework guide on component design patterns, helping Vue developers understand reusable component architecture. ❤️ 1
+**Nuxt-Specific Topics** - The community shared [3 free Nuxt & shadcn templates](https://www.reddit.com/r/Nuxt/comments/1otqib8/3_nuxt_shadcn_template_for_free/), discussed [routing and page rendering issues](https://www.reddit.com/r/Nuxt/comments/1othau6/pages_from_one_route_doesnt_render/), and explored [Claude Code skills for Nuxt Content documentation](https://www.reddit.com/r/Nuxt/comments/1otqhzb/created_a_claude_code_skill_that_helps_fetch/).
 
-**[Build a Simple Grocery Tracker App Using Vue JS and Supabase](https://dev.to/up_min_sparcs/build-a-simple-grocery-tracker-app-using-vue-js-and-supabase-51g6)** (Nov 11) - A beginner-friendly tutorial combining Vue.js with Supabase for backend services, perfect for developers exploring modern full-stack development.
-
-**[When Your Live Region Isn't Live: Fixing aria-live in Angular, React, and Vue](https://dev.to/dkoppenhagen/when-your-live-region-isnt-live-fixing-aria-live-in-angular-react-and-vue-1g0j)** (Nov 4) - An accessibility-focused article addressing a common challenge with dynamic content announcements, essential reading for developers building inclusive applications.
-
-The week also featured a series on building blog functionality and adding loader/error states, demonstrating the community's continued focus on practical, real-world application development patterns.
+**VuePress & Documentation** - A developer asked about [dynamically adding pages for search indexing at runtime in VuePress 2](https://www.reddit.com/r/vuejs/comments/1oti1fk/how_to_dynamically_add_pages_for_search_indexing/), highlighting documentation generation challenges.
 
 ---
 
-## What's Next?
-
-This week showcases Vue.js's continued relevance across diverse application types—from point-of-sale systems to real-time messaging platforms. The community discussions highlight ongoing interest in best practices for component architecture and cross-platform development, while the educational content reflects a healthy ecosystem focused on both foundational skills and advanced patterns.
-
-Keep an eye on the Nuxt ecosystem's expansion and the growing availability of specialized components like color pickers and Gantt charts, which continue to reduce the need for external dependencies.
-
----
-
-**Happy coding, and we'll see you next week with more Vue.js updates!**
+**Stay tuned for next week's updates from the Vue.js ecosystem!**

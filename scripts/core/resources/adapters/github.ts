@@ -1,4 +1,5 @@
-import type { Resource, Item, ResourceConfig, ContentCategory } from '../types.js'
+import type { Resource, Item, ResourceConfig, ContentCategory, Priority } from '../types.js'
+import { validatePriority } from '../types.js'
 import { getJson } from '../../fetch/http.js'
 import { GitHubSearchResponseSchema, type GitHubRepo } from '../../../../schemas/github.js'
 import { ZodError } from 'zod'
@@ -6,7 +7,7 @@ import { ZodError } from 'zod'
 export class GitHubSearchResource implements Resource {
   public id: string
   public category: ContentCategory = 'repos'
-  public priority: number
+  public priority: Priority
   private url: string
   private limit: number
 
@@ -14,15 +15,7 @@ export class GitHubSearchResource implements Resource {
     this.id = cfg.id
     this.limit = cfg.limit ?? 5
     this.url = cfg.url // full query passed via config
-
-    // Validate and set priority
-    const configPriority = cfg.priority ?? 3
-    if (configPriority < 1 || configPriority > 5) {
-      console.warn(`[${cfg.id}] Invalid priority ${configPriority}, using default 3`)
-      this.priority = 3
-    } else {
-      this.priority = configPriority as 1 | 2 | 3 | 4 | 5
-    }
+    this.priority = validatePriority(cfg.priority, cfg.id)
   }
 
   public async fetch(): Promise<Item[]> {

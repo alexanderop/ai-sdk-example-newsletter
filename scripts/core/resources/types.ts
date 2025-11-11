@@ -32,3 +32,19 @@ export interface Resource {
   priority: Priority // 1=lowest, 5=highest (default=3)
   fetch(): Promise<Item[]>
 }
+
+/**
+ * Validates and normalizes a priority value from resource configuration.
+ * Returns a valid Priority (1-5), defaulting to 3 for invalid inputs.
+ */
+export function validatePriority(
+  configPriority: number | undefined,
+  resourceId: string
+): Priority {
+  const priority = configPriority ?? 3
+  if (priority < 1 || priority > 5) {
+    console.warn(`[${resourceId}] Invalid priority ${priority}, using default 3`)
+    return 3
+  }
+  return priority as Priority
+}

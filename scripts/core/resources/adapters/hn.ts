@@ -1,4 +1,5 @@
-import type { Resource, Item, ResourceConfig, ContentCategory } from '../types.js'
+import type { Resource, Item, ResourceConfig, ContentCategory, Priority } from '../types.js'
+import { validatePriority } from '../types.js'
 import { getJson } from '../../fetch/http.js'
 import { HNSearchResponseSchema, type HNStory } from '../../../../schemas/hn.js'
 import { ZodError } from 'zod'
@@ -6,7 +7,7 @@ import { ZodError } from 'zod'
 export class HNResource implements Resource {
   public id: string
   public category: ContentCategory = 'discussions'
-  public priority: number
+  public priority: Priority
   private url: string
   private minScore: number
   private limit: number
@@ -15,15 +16,7 @@ export class HNResource implements Resource {
     this.id = cfg.id
     this.minScore = cfg.minScore ?? 20
     this.limit = cfg.limit ?? 10
-
-    // Validate and set priority
-    const configPriority = cfg.priority ?? 3
-    if (configPriority < 1 || configPriority > 5) {
-      console.warn(`[${cfg.id}] Invalid priority ${configPriority}, using default 3`)
-      this.priority = 3
-    } else {
-      this.priority = configPriority as 1 | 2 | 3 | 4 | 5
-    }
+    this.priority = validatePriority(cfg.priority, cfg.id)
 
     // Use cfg.url if provided, otherwise default to vue query
     if (cfg.url) {

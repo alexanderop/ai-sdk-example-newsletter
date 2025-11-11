@@ -1,4 +1,5 @@
-import type { Resource, Item, ResourceConfig, ContentCategory } from '../types.js'
+import type { Resource, Item, ResourceConfig, ContentCategory, Priority } from '../types.js'
+import { validatePriority } from '../types.js'
 import { getText } from '../../fetch/http.js'
 import { parseAtomEntries, toDate } from '../../fetch/parsers.js'
 import { z, ZodError } from 'zod'
@@ -14,7 +15,7 @@ const ParsedAtomArraySchema = z.array(ParsedAtomEntrySchema)
 export class RedditResource implements Resource {
   public id: string
   public category: ContentCategory = 'discussions'
-  public priority: number
+  public priority: Priority
   private url: string
   private tag: string
   private limit: number
@@ -24,15 +25,7 @@ export class RedditResource implements Resource {
     this.tag = cfg.tag ?? 'vuejs'
     this.limit = cfg.limit ?? 10
     this.url = `https://www.reddit.com/r/${this.tag}.rss`
-
-    // Validate and set priority
-    const configPriority = cfg.priority ?? 3
-    if (configPriority < 1 || configPriority > 5) {
-      console.warn(`[${cfg.id}] Invalid priority ${configPriority}, using default 3`)
-      this.priority = 3
-    } else {
-      this.priority = configPriority as 1 | 2 | 3 | 4 | 5
-    }
+    this.priority = validatePriority(cfg.priority, cfg.id)
   }
 
   public async fetch(): Promise<Item[]> {

@@ -60,16 +60,18 @@ function renderSections(grouped: Record<ContentCategory, Item[]>): {
   // Sort by priority (5 to 1), then by score within each priority
   const priorityLevels = [5, 4, 3, 2, 1]
   for (const priority of priorityLevels) {
+    const needed = 10 - selectedArticles.length
+    if (needed <= 0) break
+
     const articlesAtPriority = allArticles
       .filter((a): boolean => (a.priority ?? 3) === priority)
       .sort((a, b): number => (b.score ?? 0) - (a.score ?? 0))
+      .slice(0, needed)
 
     selectedArticles.push(...articlesAtPriority)
-    if (selectedArticles.length >= 10) break
   }
 
   const articles = selectedArticles
-    .slice(0, 10)
     .map((article, idx): string => {
       const date = article.date
         ? article.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
