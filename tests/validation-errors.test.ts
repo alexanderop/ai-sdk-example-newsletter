@@ -102,7 +102,7 @@ describe('Schema Validation Error Handling', (): void => {
     expect(getJsonSpy).toHaveBeenCalled()
   })
 
-  it('should re-throw network errors', async (): Promise<void> => {
+  it('should re-throw network errors from DevToResource', async (): Promise<void> => {
     // Mock getJson to throw network error
     const networkError = new Error('Network request failed')
     vi.spyOn(httpModule, 'getJson').mockRejectedValue(networkError)
@@ -117,6 +117,68 @@ describe('Schema Validation Error Handling', (): void => {
 
     // Network errors should be re-thrown, not swallowed
     await expect(resource.fetch()).rejects.toThrow('Network request failed')
+  })
+
+  it('should re-throw network errors from GitHubSearchResource', async (): Promise<void> => {
+    const { GitHubSearchResource } = await import('../scripts/core/resources/adapters/github')
+    const networkError = new Error('GitHub API network error')
+    vi.spyOn(httpModule, 'getJson').mockRejectedValue(networkError)
+
+    const resource = new GitHubSearchResource({
+      id: 'test-github',
+      kind: 'github',
+      url: 'https://api.github.com/search/repositories?q=vue',
+      limit: 5
+    })
+
+    await expect(resource.fetch()).rejects.toThrow('GitHub API network error')
+  })
+
+  it('should re-throw network errors from HNResource', async (): Promise<void> => {
+    const { HNResource } = await import('../scripts/core/resources/adapters/hn')
+    const networkError = new Error('HN API network error')
+    vi.spyOn(httpModule, 'getJson').mockRejectedValue(networkError)
+
+    const resource = new HNResource({
+      id: 'test-hn',
+      kind: 'json',
+      url: 'https://hn.algolia.com/api/v1/search',
+      tag: 'vue',
+      limit: 10
+    })
+
+    await expect(resource.fetch()).rejects.toThrow('HN API network error')
+  })
+
+  it('should re-throw network errors from RedditResource', async (): Promise<void> => {
+    const { RedditResource } = await import('../scripts/core/resources/adapters/reddit')
+    const networkError = new Error('Reddit API network error')
+    vi.spyOn(httpModule, 'getText').mockRejectedValue(networkError)
+
+    const resource = new RedditResource({
+      id: 'test-reddit',
+      kind: 'atom',
+      url: 'https://www.reddit.com/r/vuejs.rss',
+      tag: 'vuejs',
+      limit: 10
+    })
+
+    await expect(resource.fetch()).rejects.toThrow('Reddit API network error')
+  })
+
+  it('should re-throw network errors from RSSResource', async (): Promise<void> => {
+    const { RSSResource } = await import('../scripts/core/resources/adapters/rss')
+    const networkError = new Error('RSS feed network error')
+    vi.spyOn(httpModule, 'getText').mockRejectedValue(networkError)
+
+    const resource = new RSSResource({
+      id: 'test-rss',
+      kind: 'rss',
+      url: 'https://blog.vuejs.org/feed.rss',
+      limit: 10
+    })
+
+    await expect(resource.fetch()).rejects.toThrow('RSS feed network error')
   })
 
   it('should handle valid data correctly', async (): Promise<void> => {

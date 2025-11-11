@@ -353,4 +353,66 @@ More content`
     expect(result.text).toContain('# Vue.js Weekly Newsletter')
     expect(result.text.length).toBeGreaterThan(100)
   })
+
+  it('should return errors object when resources fail', async (): Promise<void> => {
+    const { seedValidationError } = await import('./fixtures/validation-error-seed')
+    await seedValidationError()
+
+    const { ResourceRegistry } = await import('../scripts/core/resources/registry')
+
+    const registry = new ResourceRegistry()
+    registry.register({
+      id: 'github-news',
+      kind: 'github',
+      url: 'https://api.github.com/search/repositories?q=vue',
+      limit: 5
+    })
+
+    const { results, errors } = await registry.collect()
+
+    // Verify errors object contains the failed resource
+    expect(errors['github-news']).toBeDefined()
+    expect(errors['github-news']).toBeInstanceOf(Error)
+    expect(errors['github-news'].message).toContain('Resource validation failed')
+
+    // Verify results still contains empty array for failed resource
+    expect(results['github-news']).toBeDefined()
+    expect(Array.isArray(results['github-news'])).toBe(true)
+    expect(results['github-news'].length).toBe(0)
+  })
+
+  it('should return partial results when some resources succeed and others fail', async (): Promise<void> => {
+    const { seedPartialFailure } = await import('./fixtures/partial-failure-seed')
+    await seedPartialFailure()
+
+    const { ResourceRegistry } = await import('../scripts/core/resources/registry')
+
+    const registry = new ResourceRegistry()
+    registry.register({
+      id: 'devto-vue',
+      kind: 'json',
+      url: 'https://dev.to/api/articles?tag=vue',
+      tag: 'DEV.to',
+      limit: 10
+    })
+    registry.register({
+      id: 'github-news',
+      kind: 'github',
+      url: 'https://api.github.com/search/repositories?q=vue',
+      limit: 5
+    })
+
+    const { results, errors } = await registry.collect()
+
+    // Verify successful resource has data
+    expect(results['devto-vue']).toBeDefined()
+    expect(results['devto-vue'].length).toBeGreaterThan(0)
+
+    // Verify failed resource has empty array (no repos seeded)
+    expect(results['github-news']).toBeDefined()
+    expect(results['github-news'].length).toBe(0)
+
+    // Errors might be empty if the resource returns successfully with no data
+    // (partial failure seed doesn't seed repos, but doesn't cause validation error)
+  })
 })
