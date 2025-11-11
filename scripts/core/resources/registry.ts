@@ -31,13 +31,24 @@ export class ResourceRegistry {
     return this
   }
 
-  public async collect(): Promise<Record<string, Item[]>> {
-    const out: Record<string, Item[]> = {}
-    const results = await Promise.allSettled(this.resources.map((r): Promise<Item[]> => r.fetch()))
-    results.forEach((res, i): void => {
+  public async collect(): Promise<{ results: Record<string, Item[]>, errors: Record<string, Error> }> {
+    const results: Record<string, Item[]> = {}
+    const errors: Record<string, Error> = {}
+    const settled = await Promise.allSettled(this.resources.map((r): Promise<Item[]> => r.fetch()))
+
+    settled.forEach((res, i): void => {
       const id = this.resources[i].id
-      out[id] = res.status === 'fulfilled' ? res.value : []
+      if (res.status === 'fulfilled') {
+        results[id] = res.value
+      } else {
+        // Graceful degradation: log error and return empty array for failed resource
+        const error = res.reason instanceof Error ? res.reason : new Error(String(res.reason))
+        errors[id] = error
+        results[id] = []
+        console.error(`[${id}] Resource fetch failed:`, error.message)
+      }
     })
-    return out
+
+    return { results, errors }
   }
 }

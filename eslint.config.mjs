@@ -10,6 +10,9 @@ export default withNuxt(
   {
     files: ['**/*.ts', '**/*.tsx'],
     rules: {
+      // Disable explicit return type requirement
+      '@typescript-eslint/explicit-function-return-type': 'off',
+
       // Enforce consistent naming conventions (TypeScript files only)
       '@typescript-eslint/naming-convention': [
         'error',

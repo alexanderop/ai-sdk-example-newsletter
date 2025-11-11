@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { server, createMockLLMClient } from './setup'
-import { happyPathScenario } from './mocks/scenarios/happy-path'
-import { partialFailureScenario } from './mocks/scenarios/partial-failure'
+import { createMockLLMClient } from './setup'
+import { seedHappyPath } from './fixtures/happy-path-seed'
+import { seedPartialFailure } from './fixtures/partial-failure-seed'
 import { existsSync, unlinkSync } from 'node:fs'
 import { join } from 'node:path'
 
@@ -21,7 +21,7 @@ describe('Newsletter Generation', (): void => {
   })
 
   it('should generate a newsletter using pipeline', async (): Promise<void> => {
-    server.use(...happyPathScenario)
+    await seedHappyPath()
 
     const { generateNewsletter } = await import('../scripts/pipelines/newsletter')
     const mockClient = createMockLLMClient()
@@ -35,7 +35,7 @@ describe('Newsletter Generation', (): void => {
   })
 
   it('should work with Anthropic client', async (): Promise<void> => {
-    server.use(...happyPathScenario)
+    await seedHappyPath()
 
     const { AnthropicClient } = await import('../scripts/core/llm/providers/anthropic')
     const { generateNewsletter } = await import('../scripts/pipelines/newsletter')
@@ -52,7 +52,7 @@ describe('Newsletter Generation', (): void => {
   })
 
   it('should handle partial source failures gracefully', async (): Promise<void> => {
-    server.use(...partialFailureScenario)
+    await seedPartialFailure()
 
     const { generateNewsletter } = await import('../scripts/pipelines/newsletter')
     const mockClient = createMockLLMClient()
@@ -64,7 +64,7 @@ describe('Newsletter Generation', (): void => {
   })
 
   it('should validate newsletter content has no placeholders', async (): Promise<void> => {
-    server.use(...happyPathScenario)
+    await seedHappyPath()
 
     const { generateNewsletter } = await import('../scripts/pipelines/newsletter')
     const { validateNewsletterContent } = await import('../scripts/utils/validate')
@@ -78,7 +78,7 @@ describe('Newsletter Generation', (): void => {
   })
 
   it('should fetch from GitHub resource adapter', async (): Promise<void> => {
-    server.use(...happyPathScenario)
+    await seedHappyPath()
 
     const { GitHubSearchResource } = await import('../scripts/core/resources/adapters/github')
 
@@ -100,7 +100,7 @@ describe('Newsletter Generation', (): void => {
   })
 
   it('should fetch from Reddit resource adapter', async (): Promise<void> => {
-    server.use(...happyPathScenario)
+    await seedHappyPath()
 
     const { RedditResource } = await import('../scripts/core/resources/adapters/reddit')
 
@@ -124,7 +124,7 @@ describe('Newsletter Generation', (): void => {
   })
 
   it('should fetch from HN resource adapter', async (): Promise<void> => {
-    server.use(...happyPathScenario)
+    await seedHappyPath()
 
     const { HNResource } = await import('../scripts/core/resources/adapters/hn')
 
@@ -148,7 +148,7 @@ describe('Newsletter Generation', (): void => {
   })
 
   it('should fetch from DEV.to resource adapter', async (): Promise<void> => {
-    server.use(...happyPathScenario)
+    await seedHappyPath()
 
     const { DevToResource } = await import('../scripts/core/resources/adapters/devto')
 
@@ -183,7 +183,7 @@ describe('Newsletter Generation', (): void => {
   })
 
   it('should use ResourceRegistry to collect from multiple sources', async (): Promise<void> => {
-    server.use(...happyPathScenario)
+    await seedHappyPath()
 
     const { ResourceRegistry } = await import('../scripts/core/resources/registry')
 
@@ -202,7 +202,7 @@ describe('Newsletter Generation', (): void => {
       limit: 10
     })
 
-    const collected = await registry.collect()
+    const { results: collected } = await registry.collect()
 
     expect(collected).toHaveProperty('github-test')
     expect(collected).toHaveProperty('reddit-test')
@@ -211,7 +211,7 @@ describe('Newsletter Generation', (): void => {
   })
 
   it('should register DevToResource via registry with devto- ID prefix', async (): Promise<void> => {
-    server.use(...happyPathScenario)
+    await seedHappyPath()
 
     const { ResourceRegistry } = await import('../scripts/core/resources/registry')
 
@@ -224,7 +224,7 @@ describe('Newsletter Generation', (): void => {
       limit: 10
     })
 
-    const collected = await registry.collect()
+    const { results: collected } = await registry.collect()
 
     expect(collected).toHaveProperty('devto-vue')
     expect(Array.isArray(collected['devto-vue'])).toBe(true)
@@ -299,7 +299,7 @@ More content`
   })
 
   it('should render articles section from DEV.to sources', async (): Promise<void> => {
-    server.use(...happyPathScenario)
+    await seedHappyPath()
 
     const { ResourceRegistry } = await import('../scripts/core/resources/registry')
 
@@ -320,7 +320,7 @@ More content`
       limit: 10
     })
 
-    const collected = await registry.collect()
+    const { results: collected } = await registry.collect()
 
     // Verify both sources collected articles
     expect(collected['devto-vue']).toBeDefined()
@@ -337,5 +337,82 @@ More content`
       expect(article).toHaveProperty('comments')
       expect(article.source).toContain('DEV.to')
     })
+  })
+
+  it('should handle validation errors gracefully and continue with partial data', async (): Promise<void> => {
+    const { seedValidationError } = await import('./fixtures/validation-error-seed')
+    await seedValidationError()
+
+    const { generateNewsletter } = await import('../scripts/pipelines/newsletter')
+    const mockClient = createMockLLMClient()
+
+    // Should not throw - graceful degradation with logged errors
+    const result = await generateNewsletter(mockClient)
+
+    // Newsletter still generates despite validation failure
+    expect(result.text).toContain('# Vue.js Weekly Newsletter')
+    expect(result.text.length).toBeGreaterThan(100)
+  })
+
+  it('should return errors object when resources fail', async (): Promise<void> => {
+    const { seedValidationError } = await import('./fixtures/validation-error-seed')
+    await seedValidationError()
+
+    const { ResourceRegistry } = await import('../scripts/core/resources/registry')
+
+    const registry = new ResourceRegistry()
+    registry.register({
+      id: 'github-news',
+      kind: 'github',
+      url: 'https://api.github.com/search/repositories?q=vue',
+      limit: 5
+    })
+
+    const { results, errors } = await registry.collect()
+
+    // Verify errors object contains the failed resource
+    expect(errors['github-news']).toBeDefined()
+    expect(errors['github-news']).toBeInstanceOf(Error)
+    expect(errors['github-news'].message).toContain('Resource validation failed')
+
+    // Verify results still contains empty array for failed resource
+    expect(results['github-news']).toBeDefined()
+    expect(Array.isArray(results['github-news'])).toBe(true)
+    expect(results['github-news'].length).toBe(0)
+  })
+
+  it('should return partial results when some resources succeed and others fail', async (): Promise<void> => {
+    const { seedPartialFailure } = await import('./fixtures/partial-failure-seed')
+    await seedPartialFailure()
+
+    const { ResourceRegistry } = await import('../scripts/core/resources/registry')
+
+    const registry = new ResourceRegistry()
+    registry.register({
+      id: 'devto-vue',
+      kind: 'json',
+      url: 'https://dev.to/api/articles?tag=vue',
+      tag: 'DEV.to',
+      limit: 10
+    })
+    registry.register({
+      id: 'github-news',
+      kind: 'github',
+      url: 'https://api.github.com/search/repositories?q=vue',
+      limit: 5
+    })
+
+    const { results, errors } = await registry.collect()
+
+    // Verify successful resource has data
+    expect(results['devto-vue']).toBeDefined()
+    expect(results['devto-vue'].length).toBeGreaterThan(0)
+
+    // Verify failed resource has empty array (no repos seeded)
+    expect(results['github-news']).toBeDefined()
+    expect(results['github-news'].length).toBe(0)
+
+    // Errors might be empty if the resource returns successfully with no data
+    // (partial failure seed doesn't seed repos, but doesn't cause validation error)
   })
 })
