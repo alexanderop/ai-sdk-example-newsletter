@@ -35,6 +35,13 @@
     "limit": 10
   },
   {
+    "id": "rss-alexop-blog",
+    "kind": "rss",
+    "url": "https://alexop.dev/rss.xml",
+    "tag": "Alex Opalic's Blog",
+    "limit": 10
+  },
+  {
     "id": "github-news",
     "kind": "github",
     "url": "https://api.github.com/search/repositories?q=vue+in:name,description+pushed:>2020-01-01&sort=updated&order=desc&per_page=5",
