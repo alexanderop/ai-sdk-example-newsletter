@@ -1,5 +1,9 @@
 import { z } from 'zod'
 
+/**
+ * Shared schema for DEV.to article data.
+ * Used by both application code (with validation) and tests.
+ */
 export const DevToArticleSchema = z.object({
   id: z.number(),
   title: z.string(),

@@ -1,17 +1,7 @@
 import type { Resource, Item, ResourceConfig } from '../types.js'
 import { getJson } from '../../fetch/http.js'
-
-type DevToArticle = {
-  id: number
-  title: string
-  url: string
-  published_at: string
-  public_reactions_count: number
-  comments_count: number
-  tags: string // comma-separated string
-  tag_list: string[] // array of tags
-  user?: { name: string }
-}
+import { DevToArticlesResponseSchema, type DevToArticle } from '../../../../schemas/devto.js'
+import { ZodError } from 'zod'
 
 export class DevToResource implements Resource {
   public id: string
@@ -27,18 +17,31 @@ export class DevToResource implements Resource {
   }
 
   public async fetch(): Promise<Item[]> {
-    const data = await getJson<DevToArticle[]>(this.url)
-    return (data ?? [])
-      .sort((a, b): number => b.public_reactions_count - a.public_reactions_count)
-      .slice(0, this.limit)
-      .map((article): Item => ({
-        title: article.title,
-        url: article.url,
-        date: article.published_at ? new Date(article.published_at) : undefined,
-        score: article.public_reactions_count,
-        comments: article.comments_count,
-        description: article.tag_list?.length ? `#${article.tag_list.join(' #')}` : undefined,
-        source: this.source
-      }))
+    try {
+      const rawData = await getJson<unknown>(this.url)
+
+      // Validate response with Zod schema - adds runtime type safety!
+      const data = DevToArticlesResponseSchema.parse(rawData)
+
+      return data
+        .sort((a, b): number => b.public_reactions_count - a.public_reactions_count)
+        .slice(0, this.limit)
+        .map((article: DevToArticle): Item => ({
+          title: article.title,
+          url: article.url,
+          date: article.published_at ? new Date(article.published_at) : undefined,
+          score: article.public_reactions_count,
+          comments: article.comments_count,
+          description: article.tag_list?.length ? `#${article.tag_list.join(' #')}` : undefined,
+          source: this.source
+        }))
+    } catch (error) {
+      if (error instanceof ZodError) {
+        console.error(`[${this.id}] API response validation failed:`, error.issues)
+        throw new Error(`Resource validation failed for ${this.id}`)
+      }
+      // Re-throw network errors and other unexpected errors
+      throw error
+    }
   }
 }

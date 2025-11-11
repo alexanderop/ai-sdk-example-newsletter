@@ -82,12 +82,38 @@ The newsletter generator uses Claude Haiku 4.5 (`claude-haiku-4-5-20251001`) wit
 
 ### Testing Architecture
 
-Tests use **MSW (Mock Service Worker)** for HTTP mocking:
-- `tests/setup.ts` - Configures MSW server for all tests
-- `tests/mocks/handlers.ts` - Defines mock responses for Claude API, GitHub API, RSS feeds
-- `tests/factories/` - Test data factories using `@faker-js/faker`
-- `tests/schemas/` - Zod schemas for validating API responses
-- `tests/mocks/scenarios/` - Pre-configured test scenarios (happy-path, partial-failure)
+Tests use **MSW (Mock Service Worker)** with **@msw/data** for HTTP mocking and data management:
+
+**Core Components:**
+- `tests/setup.ts` - Configures MSW server and collection lifecycle
+- `tests/mocks/handlers.ts` - Thin query layer that fetches from collections
+- `tests/collections/` - @msw/data collections for queryable test data
+- `tests/fixtures/` - Seed functions for test scenarios (happy-path, partial-failure)
+- `tests/utils/` - XML formatters for RSS/Atom feeds
+- `schemas/` - Shared Zod schemas used by BOTH tests AND application code
+
+**Collections-Based Approach:**
+Instead of factory functions generating data on demand, tests use collections:
+- Collections store test data in queryable, in-memory stores
+- Tests explicitly seed collections before running
+- MSW handlers query collections to return responses
+- Collections are cleared after each test for isolation
+
+**Example:**
+```typescript
+// Before (factory-based):
+server.use(...happyPathScenario)
+
+// After (collection-based):
+await articles.createMany(10, (i) => ({ /* data */ }))
+const items = await resource.fetch() // Queries collection via MSW
+```
+
+**Benefits:**
+- Explicit test data - see exactly what each test uses
+- Deterministic assertions - control data size and content
+- Better debugging - query collections to inspect state
+- Type safety - Zod schemas validate at runtime
 
 The testing setup intercepts all HTTP requests during tests, ensuring:
 - No actual API calls are made
@@ -119,6 +145,21 @@ The project uses Nuxt's generated TypeScript config (`.nuxt/tsconfig.*.json`). T
 - `@anthropic-ai/sdk` - Claude API client for newsletter generation
 - `@nuxt/ui` - Nuxt UI component library
 - `msw` - HTTP mocking for tests
+- `@msw/data` - Data modeling and querying for tests
 - `vitest` - Test runner with coverage via v8 provider
 - `tsx` - TypeScript execution for scripts
-- `zod` - Schema validation in tests
+- `zod` - Schema validation in tests AND application code (runtime validation)
+
+## Shared Schemas
+
+The project uses **shared Zod schemas** in `/schemas/` for both application and test code:
+- Application adapters validate API responses at runtime with `.parse()`
+- Test collections use the same schemas for type-safe test data
+- Single source of truth prevents schema drift between tests and production
+- Runtime validation catches API changes immediately with detailed error messages
+
+**Error Handling:**
+If an API response doesn't match the schema, adapters gracefully degrade by:
+1. Logging validation errors to console with `[resource-id]` prefix
+2. Returning empty results instead of crashing
+3. Re-throwing network errors and unexpected exceptions

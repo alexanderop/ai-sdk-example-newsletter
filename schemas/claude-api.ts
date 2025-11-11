@@ -1,5 +1,9 @@
 import { z } from 'zod'
 
+/**
+ * Shared schema for Claude API message data.
+ * Used by both application code (with validation) and tests.
+ */
 export const ClaudeContentBlockSchema = z.object({
   type: z.literal('text'),
   text: z.string()

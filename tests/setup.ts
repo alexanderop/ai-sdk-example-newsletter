@@ -3,6 +3,7 @@ import { beforeAll, afterEach, afterAll } from 'vitest'
 import { handlers } from './mocks/handlers'
 import Anthropic from '@anthropic-ai/sdk'
 import type { LLMClient, LLMMessage, LLMResponse } from '../scripts/core/llm/LLMClient'
+import { clearAllCollections } from './collections'
 
 export const server = setupServer(...handlers)
 
@@ -49,9 +50,10 @@ beforeAll((): void => {
   server.listen({ onUnhandledRequest: 'error' })
 })
 
-// Reset handlers after each test
+// Reset handlers and clear collections after each test
 afterEach((): void => {
   server.resetHandlers()
+  clearAllCollections()
 })
 
 // Clean up after all tests

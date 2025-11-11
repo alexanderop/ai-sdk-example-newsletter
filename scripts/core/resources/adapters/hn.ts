@@ -1,14 +1,7 @@
 import type { Resource, Item, ResourceConfig } from '../types.js'
 import { getJson } from '../../fetch/http.js'
-
-type HNHit = {
-  title: string
-  url: string | null
-  points: number
-  num_comments: number
-  created_at: string
-  objectID: string
-}
+import { HNSearchResponseSchema, type HNStory } from '../../../../schemas/hn.js'
+import { ZodError } from 'zod'
 
 export class HNResource implements Resource {
   public id: string
@@ -30,18 +23,31 @@ export class HNResource implements Resource {
   }
 
   public async fetch(): Promise<Item[]> {
-    const data = await getJson<{ hits: HNHit[] }>(this.url)
-    return data.hits
-      .filter((h): boolean => h.points >= this.minScore)
-      .map((h): Item => ({
-        title: h.title,
-        url: h.url ?? `https://news.ycombinator.com/item?id=${h.objectID}`,
-        score: h.points,
-        comments: h.num_comments,
-        date: new Date(h.created_at),
-        source: 'Hacker News'
-      }))
-      .sort((a, b): number => (b.score ?? 0) - (a.score ?? 0))
-      .slice(0, this.limit)
+    try {
+      const rawData = await getJson<unknown>(this.url)
+
+      // Validate response with Zod schema - adds runtime type safety!
+      const data = HNSearchResponseSchema.parse(rawData)
+
+      return data.hits
+        .filter((h: HNStory): boolean => h.points >= this.minScore)
+        .map((h: HNStory): Item => ({
+          title: h.title,
+          url: h.url ?? `https://news.ycombinator.com/item?id=${h.objectID}`,
+          score: h.points,
+          comments: h.num_comments,
+          date: new Date(h.created_at),
+          source: 'Hacker News'
+        }))
+        .sort((a, b): number => (b.score ?? 0) - (a.score ?? 0))
+        .slice(0, this.limit)
+    } catch (error) {
+      if (error instanceof ZodError) {
+        console.error(`[${this.id}] API response validation failed:`, error.issues)
+        throw new Error(`Resource validation failed for ${this.id}`)
+      }
+      // Re-throw network errors and other unexpected errors
+      throw error
+    }
   }
 }

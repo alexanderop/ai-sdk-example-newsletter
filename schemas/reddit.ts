@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
 /**
- * Reddit RSS feeds actually use Atom XML format, not RSS.
- * They use <entry> tags instead of <item> tags.
- * They do NOT include upvote scores in the feed.
+ * Shared schema for Reddit data.
+ * Reddit RSS feeds use Atom XML format, not RSS.
+ * Used by both application code (with validation) and tests.
  */
 
 // Raw Atom entry structure (for validation if needed)

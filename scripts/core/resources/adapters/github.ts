@@ -1,13 +1,7 @@
 import type { Resource, Item, ResourceConfig } from '../types.js'
 import { getJson } from '../../fetch/http.js'
-
-type GHItem = {
-  name: string
-  html_url: string
-  description: string | null
-  stargazers_count: number
-  pushed_at: string
-}
+import { GitHubSearchResponseSchema, type GitHubRepo } from '../../../../schemas/github.js'
+import { ZodError } from 'zod'
 
 export class GitHubSearchResource implements Resource {
   public id: string
@@ -21,14 +15,27 @@ export class GitHubSearchResource implements Resource {
   }
 
   public async fetch(): Promise<Item[]> {
-    const data = await getJson<{ items: GHItem[] }>(this.url)
-    return (data.items ?? []).slice(0, this.limit).map((i): Item => ({
-      title: i.name,
-      url: i.html_url,
-      description: i.description ?? 'No description',
-      stars: i.stargazers_count,
-      date: new Date(i.pushed_at),
-      source: 'GitHub'
-    }))
+    try {
+      const rawData = await getJson<unknown>(this.url)
+
+      // Validate response with Zod schema - adds runtime type safety!
+      const data = GitHubSearchResponseSchema.parse(rawData)
+
+      return (data.items ?? []).slice(0, this.limit).map((i: GitHubRepo): Item => ({
+        title: i.name,
+        url: i.html_url,
+        description: i.description ?? 'No description',
+        stars: i.stargazers_count,
+        date: new Date(i.pushed_at),
+        source: 'GitHub'
+      }))
+    } catch (error) {
+      if (error instanceof ZodError) {
+        console.error(`[${this.id}] API response validation failed:`, error.issues)
+        throw new Error(`Resource validation failed for ${this.id}`)
+      }
+      // Re-throw network errors and other unexpected errors
+      throw error
+    }
   }
 }

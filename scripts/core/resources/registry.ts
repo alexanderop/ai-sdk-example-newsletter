@@ -36,7 +36,10 @@ export class ResourceRegistry {
     const results = await Promise.allSettled(this.resources.map((r): Promise<Item[]> => r.fetch()))
     results.forEach((res, i): void => {
       const id = this.resources[i].id
-      out[id] = res.status === 'fulfilled' ? res.value : []
+      if (res.status === 'rejected') {
+        throw res.reason
+      }
+      out[id] = res.value
     })
     return out
   }

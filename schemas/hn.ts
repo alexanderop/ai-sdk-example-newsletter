@@ -1,9 +1,13 @@
 import { z } from 'zod'
 
+/**
+ * Shared schema for Hacker News story data.
+ * Used by both application code (with validation) and tests.
+ */
 export const HNStorySchema = z.object({
   objectID: z.string(),
   title: z.string(),
-  url: z.string().url().nullable(),
+  url: z.string().url().nullish(),
   points: z.number(),
   num_comments: z.number(),
   author: z.string(),
