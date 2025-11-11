@@ -1,10 +1,13 @@
-import type { Resource, Item, ResourceConfig } from '../types.js'
+import type { Resource, Item, ResourceConfig, ContentCategory, Priority } from '../types.js'
+import { validatePriority } from '../types.js'
 import { getJson } from '../../fetch/http.js'
 import { GitHubSearchResponseSchema, type GitHubRepo } from '../../../../schemas/github.js'
 import { ZodError } from 'zod'
 
 export class GitHubSearchResource implements Resource {
   public id: string
+  public category: ContentCategory = 'repos'
+  public priority: Priority
   private url: string
   private limit: number
 
@@ -12,6 +15,7 @@ export class GitHubSearchResource implements Resource {
     this.id = cfg.id
     this.limit = cfg.limit ?? 5
     this.url = cfg.url // full query passed via config
+    this.priority = validatePriority(cfg.priority, cfg.id)
   }
 
   public async fetch(): Promise<Item[]> {
@@ -27,7 +31,8 @@ export class GitHubSearchResource implements Resource {
         description: i.description ?? 'No description',
         stars: i.stargazers_count,
         date: new Date(i.pushed_at),
-        source: 'GitHub'
+        source: 'GitHub',
+        priority: this.priority
       }))
     } catch (error) {
       if (error instanceof ZodError) {

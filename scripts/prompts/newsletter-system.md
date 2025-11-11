@@ -27,6 +27,7 @@ Write in smoothly flowing prose paragraphs for introductions and transitions bet
 5. Keep the tone professional, informative, and conversational - write as an expert colleague sharing valuable findings
 6. If data is limited for a section, acknowledge it naturally (e.g., "This week saw quieter activity in...") and maintain a positive, informative tone
 7. Provide context and motivation for why each item matters to Vue.js developers
+8. IMPORTANT: Articles are pre-sorted by priority. High-priority sources (like featured developer blogs) appear first and should be given prominence in your newsletter. Always include all provided articles, especially those at the top of the list.
 </content_guidelines>
 
 <quality_standards>

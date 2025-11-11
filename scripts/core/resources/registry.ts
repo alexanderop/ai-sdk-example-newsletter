@@ -31,7 +31,11 @@ export class ResourceRegistry {
     return this
   }
 
-  public async collect(): Promise<{ results: Record<string, Item[]>, errors: Record<string, Error> }> {
+  public async collect(): Promise<{
+    results: Record<string, Item[]>
+    errors: Record<string, Error>
+    resources: Resource[]
+  }> {
     const results: Record<string, Item[]> = {}
     const errors: Record<string, Error> = {}
     const settled = await Promise.allSettled(this.resources.map((r): Promise<Item[]> => r.fetch()))
@@ -49,6 +53,6 @@ export class ResourceRegistry {
       }
     })
 
-    return { results, errors }
+    return { results, errors, resources: [...this.resources] }
   }
 }

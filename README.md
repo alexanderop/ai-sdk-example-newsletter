@@ -50,8 +50,7 @@ pnpm typecheck        # Run TypeScript type checking
 ### Code Quality
 
 ```bash
-pnpm lint             # Run ESLint (comprehensive)
-pnpm lint:fast        # Run oxlint (fast linting)
+pnpm lint             # Run ESLint with oxlint
 pnpm lint:type-aware  # Run oxlint with type checking
 ```
 

@@ -1,4 +1,5 @@
-import type { Resource, Item, ResourceConfig } from '../types.js'
+import type { Resource, Item, ResourceConfig, ContentCategory, Priority } from '../types.js'
+import { validatePriority } from '../types.js'
 import { getText } from '../../fetch/http.js'
 import { parseRSSItems } from '../../fetch/parsers.js'
 import { z, ZodError } from 'zod'
@@ -13,6 +14,8 @@ const ParsedRSSArraySchema = z.array(ParsedRSSItemSchema)
 
 export class RSSResource implements Resource {
   public id: string
+  public category: ContentCategory = 'articles'
+  public priority: Priority
   private url: string
   private sourceName: string
   private limit: number
@@ -22,6 +25,7 @@ export class RSSResource implements Resource {
     this.url = cfg.url
     this.sourceName = cfg.tag ?? 'RSS'
     this.limit = cfg.limit ?? 10
+    this.priority = validatePriority(cfg.priority, cfg.id)
   }
 
   public async fetch(): Promise<Item[]> {
@@ -36,7 +40,8 @@ export class RSSResource implements Resource {
         title: e.title,
         url: e.link,
         date: e.pubDate ? new Date(e.pubDate) : undefined,
-        source: this.sourceName
+        source: this.sourceName,
+        priority: this.priority
       }))
         .filter((i): boolean => !!(i.title && i.url))
         .slice(0, this.limit)

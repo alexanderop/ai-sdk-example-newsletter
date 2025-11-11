@@ -3,34 +3,75 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ResourceRegistry } from '../core/resources/registry.js'
 import type { LLMClient } from '../core/llm/LLMClient.js'
-import type { ResourceConfig, Item } from '../core/resources/types.js'
+import type { ResourceConfig, Item, Resource, ContentCategory } from '../core/resources/types.js'
 import { format } from '../utils/date.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-function renderSections(collected: Record<string, Item[]>): {
+function groupByCategory(
+  collected: Record<string, Item[]>,
+  resources: Resource[]
+): Record<ContentCategory, Item[]> {
+  const grouped: Record<ContentCategory, Item[]> = {
+    articles: [],
+    repos: [],
+    discussions: [],
+    news: []
+  }
+
+  resources.forEach((resource): void => {
+    const items = collected[resource.id] ?? []
+    grouped[resource.category].push(...items)
+  })
+
+  return grouped
+}
+
+function renderSections(grouped: Record<ContentCategory, Item[]>): {
   news: string
   repos: string
-  reddit: string
+  discussions: string
   articles: string
 } {
-  const news = (collected['github-news'] ?? []).map((i): string => `- [${i.title}](${i.url})`).join('\n') || '- No recent Vue.js news available'
-  const repos = (collected['github-news'] ?? []).map((r: Item, idx: number): string =>
-    `${idx + 1}. **[${r.title}](${r.url})** - ${r.description ?? 'No description'}${r.stars ? ` (⭐ ${r.stars.toLocaleString()})` : ''}`
-  ).join('\n') || '- No trending repositories available'
+  const news = (grouped.news ?? [])
+    .map((i): string => `- [${i.title}](${i.url})`)
+    .join('\n') || '- No recent Vue.js news available'
 
-  const reddit = [...(collected['reddit-vuejs'] ?? []), ...(collected['reddit-nuxt'] ?? [])]
+  const repos = (grouped.repos ?? [])
+    .map((r: Item, idx: number): string =>
+      `${idx + 1}. **[${r.title}](${r.url})** - ${r.description ?? 'No description'}${r.stars ? ` (⭐ ${r.stars.toLocaleString()})` : ''}`
+    )
+    .join('\n') || '- No trending repositories available'
+
+  const discussions = (grouped.discussions ?? [])
     .sort((a, b): number => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0))
     .slice(0, 10)
     .map((p: Item, idx: number): string => {
       const d = p.date ? p.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''
       return `${idx + 1}. **[${p.title}](${p.url})** - ${p.source}${d ? ` (${d})` : ''}`
-    }).join('\n') || '- No significant community discussions this week'
+    })
+    .join('\n') || '- No significant community discussions this week'
 
-  const articles = [...(collected['devto-vue'] ?? []), ...(collected['devto-nuxt'] ?? [])]
-    .sort((a, b): number => (b.score ?? 0) - (a.score ?? 0))
-    .slice(0, 10)
+  // Priority-based article selection: higher priority sources get included first
+  const allArticles = grouped.articles ?? []
+  const selectedArticles: Item[] = []
+
+  // Sort by priority (5 to 1), then by score within each priority
+  const priorityLevels = [5, 4, 3, 2, 1]
+  for (const priority of priorityLevels) {
+    const needed = 10 - selectedArticles.length
+    if (needed <= 0) break
+
+    const articlesAtPriority = allArticles
+      .filter((a): boolean => (a.priority ?? 3) === priority)
+      .sort((a, b): number => (b.score ?? 0) - (a.score ?? 0))
+      .slice(0, needed)
+
+    selectedArticles.push(...articlesAtPriority)
+  }
+
+  const articles = selectedArticles
     .map((article, idx): string => {
       const date = article.date
         ? article.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
@@ -41,9 +82,10 @@ function renderSections(collected: Record<string, Item[]>): {
       const tags = article.description ?? ''
 
       return `${idx + 1}. **[${article.title}](${article.url})** - ${article.source}${date ? ` (${date})` : ''}${stats ? ` | ${stats}` : ''}${tags ? `\n   ${tags}` : ''}`
-    }).join('\n') || '- No recent articles available'
+    })
+    .join('\n') || '- No recent articles available'
 
-  return { news, repos, reddit, articles }
+  return { news, repos, discussions, articles }
 }
 
 export async function generateNewsletter(llm: LLMClient): Promise<{ text: string, usage: { input_tokens: number, output_tokens: number, cache_creation_input_tokens?: number, cache_read_input_tokens?: number } }> {
@@ -54,7 +96,7 @@ export async function generateNewsletter(llm: LLMClient): Promise<{ text: string
   // Collect data from all sources
   const registry = new ResourceRegistry()
   for (const s of sources) registry.register(s)
-  const { results: collected, errors } = await registry.collect()
+  const { results: collected, errors, resources } = await registry.collect()
 
   // Log any resource failures (graceful degradation)
   const errorCount = Object.keys(errors).length
@@ -62,8 +104,11 @@ export async function generateNewsletter(llm: LLMClient): Promise<{ text: string
     console.warn(`Newsletter generation proceeding with ${errorCount} failed resource(s)`)
   }
 
+  // Group items by category
+  const grouped = groupByCategory(collected, resources)
+
   // Format context data
-  const { news, repos, reddit, articles } = renderSections(collected)
+  const { news, repos, discussions, articles } = renderSections(grouped)
   const currentDate = format(new Date())
   const context = [
     `Current Date: ${currentDate}`,
@@ -72,9 +117,9 @@ export async function generateNewsletter(llm: LLMClient): Promise<{ text: string
     '',
     `Trending Vue.js Repositories:\n${repos}`,
     '',
-    `Community Discussions from Reddit:\n${reddit}`,
+    `Community Discussions:\n${discussions}`,
     '',
-    `Articles & Tutorials from DEV.to:\n${articles}`
+    `Articles & Tutorials:\n${articles}`
   ].join('\n')
 
   // Load prompts

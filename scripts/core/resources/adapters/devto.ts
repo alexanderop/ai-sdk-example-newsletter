@@ -1,10 +1,13 @@
-import type { Resource, Item, ResourceConfig } from '../types.js'
+import type { Resource, Item, ResourceConfig, ContentCategory, Priority } from '../types.js'
+import { validatePriority } from '../types.js'
 import { getJson } from '../../fetch/http.js'
 import { DevToArticlesResponseSchema, type DevToArticle } from '../../../../schemas/devto.js'
 import { ZodError } from 'zod'
 
 export class DevToResource implements Resource {
   public id: string
+  public category: ContentCategory = 'articles'
+  public priority: Priority
   private url: string
   private limit: number
   private source: string
@@ -14,6 +17,7 @@ export class DevToResource implements Resource {
     this.url = cfg.url
     this.limit = cfg.limit ?? 10
     this.source = cfg.tag ?? 'DEV.to'
+    this.priority = validatePriority(cfg.priority, cfg.id)
   }
 
   public async fetch(): Promise<Item[]> {
@@ -33,7 +37,8 @@ export class DevToResource implements Resource {
           score: article.public_reactions_count,
           comments: article.comments_count,
           description: article.tag_list?.length ? `#${article.tag_list.join(' #')}` : undefined,
-          source: this.source
+          source: this.source,
+          priority: this.priority
         }))
     } catch (error) {
       if (error instanceof ZodError) {

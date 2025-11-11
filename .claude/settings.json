@@ -60,5 +60,29 @@
       "Bash(rm:*)"
     ]
   },
-  "includeCoAuthoredBy": false
+  "includeCoAuthoredBy": false,
+  "hooks": {
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm lint && pnpm typecheck && pnpm test",
+            "timeout": 300
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm lint && pnpm typecheck && pnpm test",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  }
 }
