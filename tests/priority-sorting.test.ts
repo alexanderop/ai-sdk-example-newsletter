@@ -10,7 +10,7 @@ describe('Priority Sorting', (): void => {
 
   it('should sort articles by priority first, then by score', async (): Promise<void> => {
     // Seed articles - all will be returned by the handler
-    await articles.createMany(10, (i) => ({
+    await articles.createMany(10, i => ({
       id: i + 1,
       title: `Article ${i + 1}`,
       url: `https://dev.to/article-${i + 1}`,
@@ -48,15 +48,15 @@ describe('Priority Sorting', (): void => {
     const normalPriorityArticles = results['devto-normal']
 
     // Verify priorities are set correctly
-    highPriorityArticles.forEach((a) => expect(a.priority).toBe(5))
-    normalPriorityArticles.forEach((a) => expect(a.priority).toBe(3))
+    highPriorityArticles.forEach(a => expect(a.priority).toBe(5))
+    normalPriorityArticles.forEach(a => expect(a.priority).toBe(3))
 
     // Simulate priority sorting (like newsletter pipeline does)
     const allArticles = [...highPriorityArticles, ...normalPriorityArticles]
     const sorted = []
     for (const priority of [5, 4, 3, 2, 1]) {
       const atPriority = allArticles
-        .filter((a) => (a.priority ?? 3) === priority)
+        .filter(a => (a.priority ?? 3) === priority)
         .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
       sorted.push(...atPriority)
     }
@@ -74,7 +74,7 @@ describe('Priority Sorting', (): void => {
 
   it('should limit articles to top 10 respecting priority', async (): Promise<void> => {
     // Seed 15 articles
-    await articles.createMany(15, (i) => ({
+    await articles.createMany(15, i => ({
       id: i + 1,
       title: `Article ${i + 1}`,
       url: `https://dev.to/article-${i + 1}`,
@@ -115,7 +115,7 @@ describe('Priority Sorting', (): void => {
 
     for (const priority of priorityLevels) {
       const articlesAtPriority = allArticles
-        .filter((a) => (a.priority ?? 3) === priority)
+        .filter(a => (a.priority ?? 3) === priority)
         .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
 
       selectedArticles.push(...articlesAtPriority)
@@ -139,7 +139,7 @@ describe('Priority Sorting', (): void => {
 
   it('should include high priority articles regardless of score', async (): Promise<void> => {
     // Seed articles with varying scores
-    await articles.createMany(15, (i) => ({
+    await articles.createMany(15, i => ({
       id: i + 1,
       title: `Article ${i + 1}`,
       url: `https://dev.to/article-${i + 1}`,
@@ -179,7 +179,7 @@ describe('Priority Sorting', (): void => {
 
     for (const priority of priorityLevels) {
       const articlesAtPriority = allArticles
-        .filter((a) => (a.priority ?? 3) === priority)
+        .filter(a => (a.priority ?? 3) === priority)
         .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
 
       selectedArticles.push(...articlesAtPriority)
@@ -194,15 +194,15 @@ describe('Priority Sorting', (): void => {
     expect(final[2].priority).toBe(5)
 
     // Priority 5 articles should have lower scores than priority 3 articles
-    const lowestPriority5Score = Math.min(...final.slice(0, 3).map((a) => a.score ?? 0))
-    const highestPriority3Score = Math.max(...final.slice(3).map((a) => a.score ?? 0))
+    const lowestPriority5Score = Math.min(...final.slice(0, 3).map(a => a.score ?? 0))
+    const highestPriority3Score = Math.max(...final.slice(3).map(a => a.score ?? 0))
 
     // This demonstrates priority overrides score
     expect(lowestPriority5Score).toBeLessThan(highestPriority3Score)
   })
 
   it('should handle default priority (3) for sources without explicit priority', async (): Promise<void> => {
-    await articles.createMany(5, (i) => ({
+    await articles.createMany(5, i => ({
       id: i + 1,
       title: `Article ${i}`,
       url: `https://dev.to/article-${i}`,
@@ -246,7 +246,7 @@ describe('Priority Sorting', (): void => {
     })
 
     // Seed normal priority articles
-    await articles.createMany(15, (i) => ({
+    await articles.createMany(15, i => ({
       id: i + 10,
       title: `Community Article ${i}`,
       url: `https://dev.to/article-${i}`,
