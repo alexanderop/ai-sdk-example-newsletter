@@ -1,10 +1,11 @@
-import type { Resource, Item, ResourceConfig } from '../types.js'
+import type { Resource, Item, ResourceConfig, ContentCategory } from '../types.js'
 import { getJson } from '../../fetch/http.js'
 import { DevToArticlesResponseSchema, type DevToArticle } from '../../../../schemas/devto.js'
 import { ZodError } from 'zod'
 
 export class DevToResource implements Resource {
   public id: string
+  public category: ContentCategory = 'articles'
   private url: string
   private limit: number
   private source: string
