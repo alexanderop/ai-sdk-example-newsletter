@@ -39,6 +39,7 @@
     "kind": "rss",
     "url": "https://alexop.dev/rss.xml",
     "tag": "Alex Opalic's Blog",
+    "priority": 5,
     "limit": 10
   },
   {

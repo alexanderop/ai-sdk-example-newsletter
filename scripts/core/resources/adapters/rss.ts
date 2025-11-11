@@ -14,6 +14,7 @@ const ParsedRSSArraySchema = z.array(ParsedRSSItemSchema)
 export class RSSResource implements Resource {
   public id: string
   public category: ContentCategory = 'articles'
+  public priority: number
   private url: string
   private sourceName: string
   private limit: number
@@ -23,6 +24,7 @@ export class RSSResource implements Resource {
     this.url = cfg.url
     this.sourceName = cfg.tag ?? 'RSS'
     this.limit = cfg.limit ?? 10
+    this.priority = cfg.priority ?? 3
   }
 
   public async fetch(): Promise<Item[]> {
@@ -37,7 +39,8 @@ export class RSSResource implements Resource {
         title: e.title,
         url: e.link,
         date: e.pubDate ? new Date(e.pubDate) : undefined,
-        source: this.sourceName
+        source: this.sourceName,
+        priority: this.priority
       }))
         .filter((i): boolean => !!(i.title && i.url))
         .slice(0, this.limit)

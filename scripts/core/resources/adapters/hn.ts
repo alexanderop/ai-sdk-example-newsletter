@@ -6,6 +6,7 @@ import { ZodError } from 'zod'
 export class HNResource implements Resource {
   public id: string
   public category: ContentCategory = 'discussions'
+  public priority: number
   private url: string
   private minScore: number
   private limit: number
@@ -14,6 +15,7 @@ export class HNResource implements Resource {
     this.id = cfg.id
     this.minScore = cfg.minScore ?? 20
     this.limit = cfg.limit ?? 10
+    this.priority = cfg.priority ?? 3
     // Use cfg.url if provided, otherwise default to vue query
     if (cfg.url) {
       this.url = cfg.url
@@ -38,7 +40,8 @@ export class HNResource implements Resource {
           score: h.points,
           comments: h.num_comments,
           date: new Date(h.created_at),
-          source: 'Hacker News'
+          source: 'Hacker News',
+          priority: this.priority
         }))
         .sort((a, b): number => (b.score ?? 0) - (a.score ?? 0))
         .slice(0, this.limit)

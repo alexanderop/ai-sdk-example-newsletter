@@ -65,7 +65,17 @@ async fetch(): Promise<Article[]> {
 2. **Create adapter** in `scripts/core/resources/adapters/`
 3. **Implement `Resource` interface** with `fetch()` and `transform()`
 4. **Validate responses** using shared schema with `.parse()`
-5. **Register adapter** in `scripts/core/resources/registry.ts`
+5. **Add to sources config** in `scripts/config/sources.json` with optional `priority` field:
+   ```json
+   {
+     "id": "my-source",
+     "kind": "rss",
+     "url": "https://example.com/feed.rss",
+     "tag": "My Source",
+     "priority": 5,  // Optional: 1-5 (default=3)
+     "limit": 10
+   }
+   ```
 6. **Create test collection** in `tests/collections/` using the same schema
 7. **Add MSW handler** in `tests/mocks/handlers.ts`
 8. **Write tests** in `tests/` to verify integration
@@ -117,6 +127,16 @@ async fetch(): Promise<Article[]> {
 - No placeholder content
 - Verify all links are valid
 - Check content length is substantial
+
+**Priority System:**
+- Sources can be assigned priority levels (1-5, default=3)
+- Priority 5 (Critical): Always included first, regardless of score
+- Priority 4 (High): Strong preference, included before lower priorities
+- Priority 3 (Normal): Default behavior, sorted by score
+- Priority 2 (Low): Included if space available after higher priorities
+- Priority 1 (Minimal): Only included if very few other items
+- Within each priority level, items are sorted by score (reactions, stars, etc.)
+- Use priority to ensure featured developer blogs or important sources always appear
 
 ## Common Tasks
 

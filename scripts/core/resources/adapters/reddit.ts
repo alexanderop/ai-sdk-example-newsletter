@@ -14,6 +14,7 @@ const ParsedAtomArraySchema = z.array(ParsedAtomEntrySchema)
 export class RedditResource implements Resource {
   public id: string
   public category: ContentCategory = 'discussions'
+  public priority: number
   private url: string
   private tag: string
   private limit: number
@@ -23,6 +24,7 @@ export class RedditResource implements Resource {
     this.tag = cfg.tag ?? 'vuejs'
     this.limit = cfg.limit ?? 10
     this.url = `https://www.reddit.com/r/${this.tag}.rss`
+    this.priority = cfg.priority ?? 3
   }
 
   public async fetch(): Promise<Item[]> {
@@ -37,7 +39,8 @@ export class RedditResource implements Resource {
         title: e.title,
         url: e.link,
         date: e.updated ? toDate(e.updated) : undefined,
-        source: `r/${this.tag}`
+        source: `r/${this.tag}`,
+        priority: this.priority
       }))
       return items
         .filter((i): boolean => !!i.title && !!i.url)

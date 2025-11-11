@@ -6,6 +6,7 @@ import { ZodError } from 'zod'
 export class GitHubSearchResource implements Resource {
   public id: string
   public category: ContentCategory = 'repos'
+  public priority: number
   private url: string
   private limit: number
 
@@ -13,6 +14,7 @@ export class GitHubSearchResource implements Resource {
     this.id = cfg.id
     this.limit = cfg.limit ?? 5
     this.url = cfg.url // full query passed via config
+    this.priority = cfg.priority ?? 3
   }
 
   public async fetch(): Promise<Item[]> {
@@ -28,7 +30,8 @@ export class GitHubSearchResource implements Resource {
         description: i.description ?? 'No description',
         stars: i.stargazers_count,
         date: new Date(i.pushed_at),
-        source: 'GitHub'
+        source: 'GitHub',
+        priority: this.priority
       }))
     } catch (error) {
       if (error instanceof ZodError) {

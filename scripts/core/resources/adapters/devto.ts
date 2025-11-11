@@ -6,6 +6,7 @@ import { ZodError } from 'zod'
 export class DevToResource implements Resource {
   public id: string
   public category: ContentCategory = 'articles'
+  public priority: number
   private url: string
   private limit: number
   private source: string
@@ -15,6 +16,7 @@ export class DevToResource implements Resource {
     this.url = cfg.url
     this.limit = cfg.limit ?? 10
     this.source = cfg.tag ?? 'DEV.to'
+    this.priority = cfg.priority ?? 3
   }
 
   public async fetch(): Promise<Item[]> {
@@ -34,7 +36,8 @@ export class DevToResource implements Resource {
           score: article.public_reactions_count,
           comments: article.comments_count,
           description: article.tag_list?.length ? `#${article.tag_list.join(' #')}` : undefined,
-          source: this.source
+          source: this.source,
+          priority: this.priority
         }))
     } catch (error) {
       if (error instanceof ZodError) {

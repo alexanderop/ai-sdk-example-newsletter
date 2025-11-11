@@ -9,6 +9,7 @@ export interface ResourceConfig {
   minScore?: number // optional filter (e.g., HN points)
   limit?: number
   tag?: string // subreddit, label, etc
+  priority?: number // 1=lowest, 5=highest (default=3)
 }
 
 export interface Item {
@@ -20,10 +21,12 @@ export interface Item {
   description?: string
   stars?: number
   source: string // human-friendly source name
+  priority?: number // inherited from resource config (1-5)
 }
 
 export interface Resource {
   id: string
   category: ContentCategory
+  priority: number // 1=lowest, 5=highest (default=3)
   fetch(): Promise<Item[]>
 }

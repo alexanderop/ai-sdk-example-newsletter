@@ -53,8 +53,22 @@ function renderSections(grouped: Record<ContentCategory, Item[]>): {
     })
     .join('\n') || '- No significant community discussions this week'
 
-  const articles = (grouped.articles ?? [])
-    .sort((a, b): number => (b.score ?? 0) - (a.score ?? 0))
+  // Priority-based article selection: higher priority sources get included first
+  const allArticles = grouped.articles ?? []
+  const selectedArticles: Item[] = []
+
+  // Sort by priority (5 to 1), then by score within each priority
+  const priorityLevels = [5, 4, 3, 2, 1]
+  for (const priority of priorityLevels) {
+    const articlesAtPriority = allArticles
+      .filter((a): boolean => (a.priority ?? 3) === priority)
+      .sort((a, b): number => (b.score ?? 0) - (a.score ?? 0))
+
+    selectedArticles.push(...articlesAtPriority)
+    if (selectedArticles.length >= 10) break
+  }
+
+  const articles = selectedArticles
     .slice(0, 10)
     .map((article, idx): string => {
       const date = article.date
