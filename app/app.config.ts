@@ -8,27 +8,27 @@ export default defineAppConfig({
   // UI Theme Colors
   ui: {
     colors: {
-      primary: 'green',    // Main brand color
-      neutral: 'slate'     // Neutral/gray tones
+      primary: 'green', // Main brand color
+      neutral: 'slate' // Neutral/gray tones
     }
   },
 
   // Site Metadata
   site: {
-    name: 'Vue.js Weekly',                               // Site title
+    name: 'Vue.js Weekly', // Site title
     description: 'Weekly Vue.js news and community updates', // Site description for SEO
-    url: 'https://vue-weekly.com',                      // Production URL
-    author: 'Vue.js Weekly Team'                        // Author name
+    url: 'https://vue-weekly.com', // Production URL
+    author: 'Vue.js Weekly Team' // Author name
   },
 
   // Branding & Visual Identity
   branding: {
     logo: {
-      icon: 'i-simple-icons-vuedotjs',  // Icon from Iconify (https://icones.js.org/)
-      text: 'Vue.js Weekly'              // Logo text
+      icon: 'i-simple-icons-vuedotjs', // Icon from Iconify (https://icones.js.org/)
+      text: 'Vue.js Weekly' // Logo text
     },
     separator: {
-      icon: 'i-simple-icons-vuedotjs'   // Icon for page separator
+      icon: 'i-simple-icons-vuedotjs' // Icon for page separator
     }
   },
 
@@ -54,7 +54,7 @@ export default defineAppConfig({
 
   // Footer Configuration
   footer: {
-    text: 'Vue.js Weekly',  // Footer text
-    showYear: true          // Show copyright year
+    text: 'Vue.js Weekly', // Footer text
+    showYear: true // Show copyright year
   }
 })
