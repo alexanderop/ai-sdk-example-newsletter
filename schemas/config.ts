@@ -20,9 +20,7 @@ export type NewsletterConfig = z.infer<typeof NewsletterConfigSchema>;
  */
 export const SourceConfigSchema = z.object({
   id: z.string().min(1, 'Source ID is required'),
-  kind: z.enum(['rss', 'atom', 'json', 'github'], {
-    errorMap: () => ({ message: 'Kind must be one of: rss, atom, json, github' })
-  }),
+  kind: z.enum(['rss', 'atom', 'json', 'github']),
   url: z.string().url('Must be a valid URL'),
   tag: z.string().optional(),
   limit: z.number().int().positive('Limit must be a positive integer'),

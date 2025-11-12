@@ -45,7 +45,7 @@ function formatDate(dateString: string): string {
       <UButton
         to="/newsletters"
         variant="ghost"
-        color="gray"
+        color="neutral"
         icon="i-heroicons-arrow-left"
         class="mb-6"
       >

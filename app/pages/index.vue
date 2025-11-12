@@ -39,7 +39,7 @@ useHead({
           to="/rss.xml"
           size="lg"
           variant="outline"
-          color="gray"
+          color="neutral"
           icon="i-heroicons-rss"
         >
           RSS Feed

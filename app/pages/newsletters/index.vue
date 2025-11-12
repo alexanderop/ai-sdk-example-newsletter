@@ -41,8 +41,7 @@ function formatDate(dateString: string): string {
           v-for="newsletter in newsletters"
           :key="newsletter.id"
           :to="newsletter.path"
-          :ui="{ body: { padding: 'p-6' } }"
-          class="hover:shadow-lg transition-shadow"
+          class="hover:shadow-lg transition-shadow p-6"
         >
           <div class="flex justify-between items-start">
             <div class="flex-1">
@@ -73,7 +72,7 @@ function formatDate(dateString: string): string {
         </UCard>
       </div>
 
-      <UCard v-else :ui="{ body: { padding: 'p-6' } }">
+      <UCard v-else class="p-6">
         <p class="text-gray-600 dark:text-gray-400">
           No newsletters published yet. Check back soon!
         </p>
