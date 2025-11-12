@@ -69,8 +69,63 @@ The newsletter generation follows a multi-stage pipeline architecture:
 
 2. **LLM Abstraction Layer** (`scripts/core/llm/`)
    - `LLMClient.ts` - Common interface for AI providers
-   - `providers/anthropic.ts` and `providers/openai.ts` - Provider-specific implementations
-   - Supports multiple models via environment variables (`LLM_PROVIDER`, `ANTHROPIC_MODEL`, `OPENAI_MODEL`)
+   - `providers/vercel-ai.ts` - Unified provider implementation using Vercel AI SDK
+   - Supports Anthropic and OpenAI via environment variables (`LLM_PROVIDER`, `ANTHROPIC_MODEL`, `OPENAI_MODEL`)
+
+   **IMPORTANT: Vercel AI SDK Implementation Notes**
+
+   The Vercel AI SDK has a **type/runtime mismatch** that must be handled carefully:
+
+   - **TypeScript types declare**: `usage.promptTokens` and `usage.completionTokens`
+   - **Runtime actually returns**: `usage.inputTokens` and `usage.outputTokens`
+   - **Solution**: Cast to `unknown` first, then to custom interface with both field names
+
+   ```typescript
+   // Required pattern for token usage extraction
+   const usage = result.usage as unknown as {
+     inputTokens?: number
+     outputTokens?: number
+     promptTokens?: number
+     completionTokens?: number
+     cachedInputTokens?: number
+   }
+
+   const tokens = {
+     input_tokens: usage.inputTokens ?? usage.promptTokens ?? 0,
+     output_tokens: usage.outputTokens ?? usage.completionTokens ?? 0,
+     cache_read_input_tokens: usage.cachedInputTokens
+   }
+   ```
+
+   **Model ID Validation**:
+   - Use valid Anthropic model IDs: `claude-3-5-haiku-20241022`, `claude-3-5-sonnet-20241022`
+   - Aliases like `claude-3-5-sonnet-latest` may not work depending on API version
+   - Invalid model IDs return 404 errors with cryptic messages like `model: <model-id>`
+
+   **Prompt Caching** (Anthropic only):
+   - Use `experimental_providerMetadata` field in message objects
+   - Cache data is in `result.usage.cachedInputTokens` (not in provider metadata)
+
+   ```typescript
+   messages: [
+     {
+       role: 'system',
+       content: systemPrompt,
+       // eslint-disable-next-line @typescript-eslint/naming-convention
+       experimental_providerMetadata: {
+         anthropic: {
+           cacheControl: { type: 'ephemeral' }
+         }
+       }
+     }
+   ]
+   ```
+
+   **Provider Instantiation**:
+   - Vercel AI SDK providers automatically read API keys from environment variables
+   - `anthropic()` reads `ANTHROPIC_API_KEY`
+   - `openai()` reads `OPENAI_API_KEY`
+   - No need to pass API key explicitly unless overriding
 
 3. **Newsletter Pipeline** (`scripts/pipelines/newsletter.ts`)
    - Orchestrates the full generation flow:

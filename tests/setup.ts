@@ -1,19 +1,10 @@
 import { setupServer } from 'msw/node'
 import { beforeAll, afterEach, afterAll } from 'vitest'
 import { handlers } from './mocks/handlers'
-import Anthropic from '@anthropic-ai/sdk'
 import type { LLMClient, LLMMessage, LLMResponse } from '../scripts/core/llm/LLMClient'
 import { clearAllCollections } from './collections'
 
 export const server = setupServer(...handlers)
-
-// Create a mock Anthropic client for tests
-export function createMockAnthropicClient(): Anthropic {
-  return new Anthropic({
-    apiKey: 'test-api-key-for-testing'
-    // No need to set baseURL - MSW will intercept the default API endpoint
-  })
-}
 
 // Create a mock LLM client for testing the new architecture
 export function createMockLLMClient(): LLMClient {

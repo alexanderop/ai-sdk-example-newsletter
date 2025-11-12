@@ -34,15 +34,16 @@ describe('Newsletter Generation', (): void => {
     expect(result.usage.output_tokens).toBeGreaterThan(0)
   })
 
-  it('should work with Anthropic client', async (): Promise<void> => {
+  it('should work with Vercel AI SDK (Anthropic provider)', async (): Promise<void> => {
     await seedHappyPath()
 
-    const { AnthropicClient } = await import('../scripts/core/llm/providers/anthropic')
+    const { VercelAIClient } = await import('../scripts/core/llm/providers/vercel-ai')
     const { generateNewsletter } = await import('../scripts/pipelines/newsletter')
 
-    const client = new AnthropicClient({
+    const client = new VercelAIClient({
       apiKey: 'test-api-key-for-testing',
-      model: 'claude-haiku-4-5-20251001'
+      provider: 'anthropic',
+      model: 'claude-3-5-sonnet-20241022'
     })
 
     const result = await generateNewsletter(client)

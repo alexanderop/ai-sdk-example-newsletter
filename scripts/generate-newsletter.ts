@@ -1,8 +1,7 @@
 import { config } from 'dotenv'
 
 import { generateNewsletter } from './pipelines/newsletter.js'
-import { AnthropicClient } from './core/llm/providers/anthropic.js'
-import { OpenAIClient } from './core/llm/providers/openai.js'
+import { VercelAIClient } from './core/llm/providers/vercel-ai.js'
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -13,15 +12,22 @@ config()
 
 function llmFromEnv(): LLMClient {
   const provider = (process.env.LLM_PROVIDER ?? 'anthropic').toLowerCase()
-  if (provider === 'openai') {
-    if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY missing')
-    return new OpenAIClient({ apiKey: process.env.OPENAI_API_KEY, model: process.env.OPENAI_MODEL })
+  if (provider !== 'openai' && provider !== 'anthropic') {
+    throw new Error(`Unknown LLM_PROVIDER: ${provider}. Must be 'openai' or 'anthropic'`)
   }
-  if (provider === 'anthropic') {
-    if (!process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY missing')
-    return new AnthropicClient({ apiKey: process.env.ANTHROPIC_API_KEY, model: process.env.ANTHROPIC_MODEL })
+
+  const apiKey = provider === 'openai' ? process.env.OPENAI_API_KEY : process.env.ANTHROPIC_API_KEY
+  const model = provider === 'openai' ? process.env.OPENAI_MODEL : process.env.ANTHROPIC_MODEL
+
+  if (!apiKey) {
+    throw new Error(`${provider.toUpperCase()}_API_KEY missing`)
   }
-  throw new Error(`Unknown LLM_PROVIDER: ${provider}. Must be 'openai' or 'anthropic'`)
+
+  return new VercelAIClient({
+    apiKey,
+    provider,
+    model
+  })
 }
 
 async function save(text: string, filename?: string): Promise<string> {
@@ -71,7 +77,11 @@ if (scriptPath && scriptPath === modulePath) {
       }
       console.log(`⏱️  ${((Date.now() - start) / 1000).toFixed(1)}s`)
     } catch (err) {
-      console.error('❌', err?.message ?? err)
+      console.error('❌ Error:', err)
+      if (err instanceof Error) {
+        console.error('Message:', err.message)
+        console.error('Stack:', err.stack)
+      }
       process.exit(1)
     }
   })()

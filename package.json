@@ -21,11 +21,14 @@
     "e2e:debug": "playwright test --debug"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.44",
+    "@ai-sdk/openai": "^2.0.65",
     "@anthropic-ai/sdk": "^0.68.0",
     "@iconify-json/lucide": "^1.2.71",
     "@iconify-json/simple-icons": "^1.2.55",
     "@nuxt/content": "^3.8.0",
     "@nuxt/ui": "^4.1.0",
+    "ai": "^5.0.93",
     "dotenv": "^17.2.3",
     "feed": "^5.1.0",
     "nuxt": "^4.2.0",
