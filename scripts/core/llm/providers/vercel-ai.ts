@@ -1,6 +1,6 @@
 import { generateText } from 'ai'
-import { anthropic } from '@ai-sdk/anthropic'
-import { openai } from '@ai-sdk/openai'
+import { anthropic, createAnthropic } from '@ai-sdk/anthropic'
+import { createOpenAI, openai } from '@ai-sdk/openai'
 import type { LanguageModelV1 } from 'ai'
 import type { LLMClient, LLMMessage, LLMResponse } from '../LLMClient.js'
 import { getEnvVar } from '../../../utils/env.js'
@@ -28,14 +28,16 @@ export class VercelAIClient implements LLMClient {
       if (typeof apiKey !== 'string' || apiKey.length === 0) {
         throw new Error('Anthropic API key is required. Provide it via constructor or ANTHROPIC_API_KEY environment variable.')
       }
-      this.modelInstance = anthropic(this.model)
+      const anthropicProvider = createAnthropic({ apiKey })
+      this.modelInstance = anthropicProvider(this.model)
     } else if (provider === 'openai') {
       this.model = opts?.model ?? 'gpt-4o-mini'
       const apiKey: string | undefined = opts?.apiKey ?? getEnvVar('OPENAI_API_KEY')
       if (typeof apiKey !== 'string' || apiKey.length === 0) {
         throw new Error('OpenAI API key is required. Provide it via constructor or OPENAI_API_KEY environment variable.')
       }
-      this.modelInstance = openai(this.model)
+      const openaiProvider = createOpenAI({ apiKey })
+      this.modelInstance = openaiProvider(this.model)
     } else {
       throw new Error(`Unknown provider: ${provider}. Must be 'anthropic' or 'openai'`)
     }

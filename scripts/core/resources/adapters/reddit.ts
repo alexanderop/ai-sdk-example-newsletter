@@ -22,10 +22,14 @@ export class RedditResource implements Resource {
 
   public constructor(cfg: ResourceConfig) {
     this.id = cfg.id
-    this.tag = cfg.tag ?? 'vuejs'
+    this.url = cfg.url
     this.limit = cfg.limit ?? 10
-    this.url = `https://www.reddit.com/r/${this.tag}.rss`
     this.priority = validatePriority(cfg.priority, cfg.id)
+
+    // Extract subreddit name from URL or use tag
+    // URL format: https://www.reddit.com/r/SUBREDDIT.rss
+    const subredditMatch = this.url.match(/\/r\/([^/.]+)/)
+    this.tag = subredditMatch?.[1] ?? cfg.tag ?? 'reddit'
   }
 
   public async fetch(): Promise<Item[]> {
