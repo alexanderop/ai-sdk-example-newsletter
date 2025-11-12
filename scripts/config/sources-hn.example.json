@@ -1,0 +1,49 @@
+{
+  "_comment": "Hacker News source - currently disabled due to low content volume",
+  "_reason": "Research showed HN has insufficient Vue/Nuxt content for weekly newsletters. Over 60 days, only 1-3 relevant stories are found. Most weeks return 0 results. See research notes below.",
+  "_howToEnable": "Copy the configuration below and add it to sources.json array",
+  "_recommendations": {
+    "query": "Use 'vuejs' instead of 'vue' to avoid false positives like 'review', 'revenue', 'interview'",
+    "minScore": "Use 5 instead of 20 - most Vue content gets 1-5 points, 20+ is extremely rare",
+    "timeWindow": "The adapter uses 7 days by default. Consider extending to 30-60 days for HN",
+    "priority": "Set to 2 (low priority) since content is unreliable"
+  },
+  "_researchFindings": {
+    "volumePerWeek": "0-1 stories with 20+ points, 1-2 stories with 5+ points",
+    "falsePositives": "Query 'vue' matches 'review', 'revenue', 'interview'. Use 'vuejs' instead.",
+    "scoreDistribution": "80% have 1-3 points, 15% have 5-10 points, only 1% have 20+ points",
+    "comparedToOtherSources": "Dev.to: 20-50+ weekly, Reddit: 10-30+ weekly, HN: 0-1 weekly"
+  },
+  "configurations": {
+    "option1_conservative": {
+      "_description": "Most conservative - only highly upvoted Vue stories from last 60 days",
+      "id": "hn-vue",
+      "kind": "json",
+      "minScore": 20,
+      "limit": 5,
+      "priority": 2,
+      "_note": "Adapter will automatically use 'vue OR nuxt OR vite' query with 7-day filter. Expect 0 results most weeks."
+    },
+    "option2_recommended": {
+      "_description": "Recommended if re-enabling - lower score threshold, accepts more content",
+      "id": "hn-vue",
+      "kind": "json",
+      "url": "https://hn.algolia.com/api/v1/search?query=vuejs&tags=story",
+      "minScore": 5,
+      "limit": 5,
+      "priority": 2,
+      "_note": "Using explicit URL to override default query. Uses 'vuejs' for better precision. Still expect 1-2 results per month at best."
+    },
+    "option3_vite_focused": {
+      "_description": "Focus on Vite instead - better volume than Vue/Nuxt on HN",
+      "id": "hn-vite",
+      "kind": "json",
+      "url": "https://hn.algolia.com/api/v1/search?query=vite%20OR%20vitest&tags=story",
+      "minScore": 10,
+      "limit": 5,
+      "priority": 3,
+      "_note": "Vite content has better HN engagement than Vue. Expect 1-2 relevant results per week."
+    }
+  },
+  "_instructions": "To re-enable: Choose one configuration from 'configurations' above, copy it (without the '_description' and '_note' fields), and add it to the sources.json array."
+}

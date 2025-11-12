@@ -37,6 +37,16 @@ Each external API has an adapter implementing the `Resource` interface:
 3. **Fail fast** - Throw on validation errors, don't return empty arrays
 4. **Handle network errors** - Re-throw with context
 
+**Available Adapters:**
+- `devto.ts` - Dev.to API (active)
+- `github.ts` - GitHub API (active)
+- `reddit.ts` - Reddit RSS feeds (active)
+- `rss.ts` - Generic RSS/Atom feeds (active)
+- `hn.ts` - Hacker News Algolia API (disabled - see note below)
+
+**Note on Hacker News:**
+The HN adapter is currently disabled in `sources.json` due to insufficient Vue/Nuxt content volume. Research showed only 0-1 relevant stories per week meet quality thresholds. The adapter code remains available in `adapters/hn.ts`. To re-enable, see configuration options in `scripts/config/sources-hn.example.json`.
+
 **Example Pattern:**
 ```typescript
 async fetch(): Promise<Article[]> {

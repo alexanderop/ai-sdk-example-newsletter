@@ -14,13 +14,6 @@
     "limit": 10
   },
   {
-    "id": "hn-vue",
-    "kind": "json",
-    "url": "https://hn.algolia.com/api/v1/search?query=vue&tags=story",
-    "minScore": 20,
-    "limit": 10
-  },
-  {
     "id": "rss-vue-blog",
     "kind": "rss",
     "url": "https://blog.vuejs.org/feed.rss",
