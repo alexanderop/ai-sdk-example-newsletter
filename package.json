@@ -20,6 +20,7 @@
     "@anthropic-ai/sdk": "^0.68.0",
     "@iconify-json/lucide": "^1.2.71",
     "@iconify-json/simple-icons": "^1.2.55",
+    "@nuxt/content": "^3.8.0",
     "@nuxt/ui": "^4.1.0",
     "dotenv": "^17.2.3",
     "nuxt": "^4.2.0",
