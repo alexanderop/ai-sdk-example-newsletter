@@ -35,18 +35,18 @@ describe('API Key Validation', (): void => {
     process.env.ANTHROPIC_API_KEY = 'test-api-key-for-testing'
     delete process.env.LLM_PROVIDER // Default to Anthropic
 
-    const { AnthropicClient } = await import('../scripts/core/llm/providers/anthropic')
+    const { VercelAIClient } = await import('../scripts/core/llm/providers/vercel-ai')
 
-    expect((): AnthropicClient => new AnthropicClient()).not.toThrow()
+    expect((): VercelAIClient => new VercelAIClient({ provider: 'anthropic' })).not.toThrow()
   })
 
   it('should work with valid OPENAI_API_KEY when provider is openai', async (): Promise<void> => {
     process.env.OPENAI_API_KEY = 'test-openai-key'
     process.env.LLM_PROVIDER = 'openai'
 
-    const { OpenAIClient } = await import('../scripts/core/llm/providers/openai')
+    const { VercelAIClient } = await import('../scripts/core/llm/providers/vercel-ai')
 
-    expect((): OpenAIClient => new OpenAIClient()).not.toThrow()
+    expect((): VercelAIClient => new VercelAIClient({ provider: 'openai' })).not.toThrow()
   })
 
   it('should validate API key format', async (): Promise<void> => {
@@ -60,22 +60,24 @@ describe('API Key Validation', (): void => {
   })
 
   it('should allow Anthropic client with injected API key', async (): Promise<void> => {
-    const { AnthropicClient } = await import('../scripts/core/llm/providers/anthropic')
+    const { VercelAIClient } = await import('../scripts/core/llm/providers/vercel-ai')
 
-    const client = new AnthropicClient({
+    const client = new VercelAIClient({
       apiKey: 'test-injected-key',
-      model: 'claude-haiku-4-5-20251001'
+      provider: 'anthropic',
+      model: 'claude-3-5-sonnet-20241022'
     })
 
     expect(client.name).toBe('anthropic')
-    expect(client.model).toBe('claude-haiku-4-5-20251001')
+    expect(client.model).toBe('claude-3-5-sonnet-20241022')
   })
 
   it('should allow OpenAI client with injected API key', async (): Promise<void> => {
-    const { OpenAIClient } = await import('../scripts/core/llm/providers/openai')
+    const { VercelAIClient } = await import('../scripts/core/llm/providers/vercel-ai')
 
-    const client = new OpenAIClient({
+    const client = new VercelAIClient({
       apiKey: 'test-injected-openai-key',
+      provider: 'openai',
       model: 'gpt-4o-mini'
     })
 

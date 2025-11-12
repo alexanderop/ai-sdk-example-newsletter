@@ -97,11 +97,7 @@ export async function generateNewsletter(llm: LLMClient): Promise<{ text: string
   for (const s of sources) registry.register(s)
   const { results: collected, errors, resources } = await registry.collect()
 
-  // Log any resource failures (graceful degradation)
-  const errorCount = Object.keys(errors).length
-  if (errorCount > 0) {
-    console.warn(`Newsletter generation proceeding with ${errorCount} failed resource(s)`)
-  }
+  // Continue with partial data if some resources fail (errors already logged by registry)
 
   // Group items by category
   const grouped = groupByCategory(collected, resources)
