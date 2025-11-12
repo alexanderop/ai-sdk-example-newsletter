@@ -2,7 +2,8 @@
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
-    '@nuxt/ui'
+    '@nuxt/ui',
+    '@nuxt/content'
   ],
 
   devtools: {
@@ -11,11 +12,24 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  content: {
+    experimental: {
+      sqliteConnector: 'native'
+    }
+  },
+
   routeRules: {
     '/': { prerender: true }
   },
 
   compatibilityDate: '2025-01-15',
+
+  nitro: {
+    prerender: {
+      routes: ['/rss.xml'],
+      crawlLinks: true
+    }
+  },
 
   typescript: {
     strict: true,

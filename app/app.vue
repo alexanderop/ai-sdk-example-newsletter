@@ -1,4 +1,6 @@
 <script setup>
+const appConfig = useAppConfig()
+
 useHead({
   meta: [
     { name: 'viewport', content: 'width=device-width, initial-scale=1' }
@@ -11,16 +13,11 @@ useHead({
   }
 })
 
-const title = 'Nuxt Starter Template'
-const description = 'A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours.'
-
 useSeoMeta({
-  title,
-  description,
-  ogTitle: title,
-  ogDescription: description,
-  ogImage: 'https://ui.nuxt.com/assets/templates/nuxt/starter-light.png',
-  twitterImage: 'https://ui.nuxt.com/assets/templates/nuxt/starter-light.png',
+  title: appConfig.site.name,
+  description: appConfig.site.description,
+  ogTitle: appConfig.site.name,
+  ogDescription: appConfig.site.description,
   twitterCard: 'summary_large_image'
 })
 </script>
@@ -32,15 +29,17 @@ useSeoMeta({
         <NuxtLink to="/">
           <AppLogo class="w-auto h-6 shrink-0" />
         </NuxtLink>
+      </template>
 
-        <TemplateMenu />
+      <template #center>
+        <UHeaderLinks :links="appConfig.navigation.header" />
       </template>
 
       <template #right>
         <UColorModeButton />
 
         <UButton
-          to="https://github.com/nuxt-ui-templates/starter"
+          :to="appConfig.social.github"
           target="_blank"
           icon="i-simple-icons-github"
           aria-label="GitHub"
@@ -54,18 +53,18 @@ useSeoMeta({
       <NuxtPage />
     </UMain>
 
-    <USeparator icon="i-simple-icons-nuxtdotjs" />
+    <USeparator :icon="appConfig.branding.separator.icon" />
 
     <UFooter>
       <template #left>
         <p class="text-sm text-muted">
-          Built with Nuxt UI • © {{ new Date().getFullYear() }}
+          {{ appConfig.footer.text }}{{ appConfig.footer.showYear ? ` • © ${new Date().getFullYear()}` : '' }}
         </p>
       </template>
 
       <template #right>
         <UButton
-          to="https://github.com/nuxt-ui-templates/starter"
+          :to="appConfig.social.github"
           target="_blank"
           icon="i-simple-icons-github"
           aria-label="GitHub"

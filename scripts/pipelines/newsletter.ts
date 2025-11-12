@@ -1,10 +1,10 @@
-import { readFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ResourceRegistry } from '../core/resources/registry.js'
 import type { LLMClient } from '../core/llm/LLMClient.js'
 import type { ResourceConfig, Item, Resource, ContentCategory } from '../core/resources/types.js'
 import { format } from '../utils/date.js'
+import { loadSourcesConfig, loadSystemPrompt } from '../utils/config-loader.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -89,9 +89,8 @@ function renderSections(grouped: Record<ContentCategory, Item[]>): {
 }
 
 export async function generateNewsletter(llm: LLMClient): Promise<{ text: string, usage: { input_tokens: number, output_tokens: number, cache_creation_input_tokens?: number, cache_read_input_tokens?: number } }> {
-  // Load sources config
-  const sourcesPath = join(__dirname, '../config/sources.json')
-  const sources = JSON.parse(readFileSync(sourcesPath, 'utf-8')) as ResourceConfig[]
+  // Load sources config from new config directory
+  const sources = await loadSourcesConfig() as ResourceConfig[]
 
   // Collect data from all sources
   const registry = new ResourceRegistry()
@@ -122,10 +121,12 @@ export async function generateNewsletter(llm: LLMClient): Promise<{ text: string
     `Articles & Tutorials:\n${articles}`
   ].join('\n')
 
-  // Load prompts
-  const systemPath = join(__dirname, '../prompts/newsletter-system.md')
+  // Load system prompt from config
+  const system = (await loadSystemPrompt()).trim()
+
+  // Load user prompt template
   const userPath = join(__dirname, '../prompts/newsletter-user.md')
-  const system = readFileSync(systemPath, 'utf-8').trim()
+  const { readFileSync } = await import('node:fs')
   const user = readFileSync(userPath, 'utf-8')
     .replace('{{CONTEXT_DATA}}', context)
 

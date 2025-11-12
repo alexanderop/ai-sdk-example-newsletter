@@ -7,6 +7,7 @@ import { writeFileSync, mkdirSync, existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { LLMClient } from './core/llm/LLMClient.js'
+import { loadNewsletterConfig } from './utils/config-loader.js'
 
 config()
 
@@ -23,12 +24,28 @@ function llmFromEnv(): LLMClient {
   throw new Error(`Unknown LLM_PROVIDER: ${provider}. Must be 'openai' or 'anthropic'`)
 }
 
-function save(text: string, filename?: string): string {
-  const dir = join(process.cwd(), 'newsletters')
+async function save(text: string, filename?: string): Promise<string> {
+  const newsletterConfig = await loadNewsletterConfig()
+  const dir = join(process.cwd(), 'content', 'newsletters')
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
-  const name = filename ?? new Date().toISOString().split('T')[0] + '-vue-weekly.md'
+
+  const date = new Date().toISOString().split('T')[0]
+  const slug = newsletterConfig.slug ?? 'newsletter'
+  const name = filename ?? `${date}-${slug}.md`
+
+  // Create frontmatter
+  const frontmatter = `---
+title: ${newsletterConfig.title}
+date: ${date}
+description: ${newsletterConfig.description}
+author: ${newsletterConfig.author}
+---
+
+`
+
+  const fullContent = frontmatter + text
   const path = join(dir, name)
-  writeFileSync(path, text, 'utf-8')
+  writeFileSync(path, fullContent, 'utf-8')
   return path
 }
 
@@ -43,7 +60,7 @@ if (scriptPath && scriptPath === modulePath) {
 
     try {
       const { text, usage } = await generateNewsletter(llm)
-      const path = save(text)
+      const path = await save(text)
       console.log(`✅ Wrote ${path}`)
       console.log(`📊 Tokens in/out: ${usage.input_tokens}/${usage.output_tokens}`)
       if (usage.cache_read_input_tokens) {

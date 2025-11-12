@@ -1,0 +1,33 @@
+[
+  {
+    "id": "reddit-python",
+    "kind": "atom",
+    "url": "https://www.reddit.com/r/Python.rss",
+    "tag": "Reddit r/Python",
+    "limit": 10,
+    "priority": 3
+  },
+  {
+    "id": "rss-python-insider",
+    "kind": "rss",
+    "url": "https://blog.python.org/feeds/posts/default",
+    "tag": "Python Insider",
+    "limit": 10,
+    "priority": 5
+  },
+  {
+    "id": "github-python",
+    "kind": "github",
+    "url": "https://api.github.com/search/repositories?q=python+in:name,description+pushed:>2020-01-01&sort=updated&order=desc&per_page=5",
+    "limit": 5,
+    "priority": 3
+  },
+  {
+    "id": "devto-python",
+    "kind": "json",
+    "url": "https://dev.to/api/articles?tag=python&top=7&per_page=20",
+    "tag": "DEV.to #python",
+    "limit": 10,
+    "priority": 3
+  }
+]

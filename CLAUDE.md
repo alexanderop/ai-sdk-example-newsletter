@@ -1,173 +1,192 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
-This is a Nuxt 4 application with an integrated Vue.js newsletter generator powered by the Anthropic Claude API. The project has two distinct parts:
+This is an AI-powered newsletter platform that uses Claude AI to generate automated, curated newsletters from multiple content sources (RSS feeds, Reddit, GitHub, Dev.to). The platform consists of:
 
-1. **Nuxt Web Application** (`/app`) - See `/app/CLAUDE.md` for specific guidance
-2. **Newsletter Generator** (`/scripts`) - See `/scripts/CLAUDE.md` for specific guidance
-3. **Test Infrastructure** (`/tests`) - See `/tests/CLAUDE.md` for testing guidelines
+1. **Newsletter Generation Scripts** (`scripts/`) - TypeScript-based content aggregation and AI generation
+2. **Nuxt 4 Web Application** (`app/`) - Static site for displaying newsletters
+3. **Configuration System** (`config/`) - User-editable JSON configs and prompt templates
+4. **Automated Deployment** - GitHub Actions workflow for scheduled generation
 
-## Coding Standards
-
-### TypeScript
-
-- **Use strict TypeScript** - No `any` types without justification
-- **Prefer interfaces over types** for object shapes
-- **Use semicolons** at the end of statements (ASI can cause issues)
-- **Member delimiter**: Use semicolons in interfaces and type literals
-- **Return types**: Always specify return types on exported functions
-
-### Code Style
-
-- **Brace style**: Use 1tbs (opening brace on same line)
-- **Indentation**: 2 spaces (no tabs)
-- **Quotes**: Single quotes for strings (except to avoid escaping)
-- **Trailing commas**: No trailing commas in objects/arrays
-- **Line length**: Prefer 100 characters max
-
-### Naming Conventions
-
-- **Files**: kebab-case (`user-profile.ts`, not `UserProfile.ts`)
-- **Components**: PascalCase (`UserProfile.vue`)
-- **Functions**: camelCase (`fetchUserData`)
-- **Constants**: UPPER_SNAKE_CASE for true constants (`API_BASE_URL`)
-- **Types/Interfaces**: PascalCase (`UserProfile`, `ApiResponse`)
-
-### Error Handling
-
-- **Use neverthrow** for expected errors (Result<T, E> pattern)
-- **Throw exceptions** only for unexpected/unrecoverable errors
-- **Validate at boundaries** - Use Zod schemas at API boundaries
-- **Log validation errors** with resource prefix: `[resource-id] error message`
-- **Fail fast** - Don't propagate invalid data deeper into the system
-
-## Development Workflows
-
-### Before Writing Code
-
-1. **Understand the requirement** - Ask clarifying questions if needed
-2. **Check existing patterns** - Look for similar implementations
-3. **Plan the approach** - Consider edge cases and error handling
-
-### Writing Code
-
-1. **Write tests first** when implementing new features (TDD)
-2. **Run tests frequently** - Use `pnpm test:watch` during development
-3. **Validate schemas** - Use Zod at API boundaries
-4. **Check types** - Run `pnpm typecheck` before committing
-
-### Before Committing
-
-1. **Run linting** - Execute `pnpm lint`
-2. **Run all tests** - Execute `pnpm test` to ensure nothing broke
-3. **Review your changes** - Use `git diff` to check what you're committing
-4. **Write clear commit messages** - Follow conventional commits format
-
-### Creating Pull Requests
-
-1. **Verify all tests pass** - Run `pnpm test`
-2. **Check build succeeds** - Run `pnpm build`
-3. **Review the diff** - Use `git diff main...HEAD` to see all changes
-4. **Write descriptive PR description** - Explain what, why, and how
-5. **Include test plan** - List verification steps as checkboxes
-
-## Commands
+## Essential Commands
 
 ### Development
 ```bash
-pnpm dev              # Start development server on localhost:3000
-pnpm build            # Build for production
-pnpm preview          # Preview production build locally
+pnpm install          # Install dependencies
+pnpm dev              # Start Nuxt dev server (http://localhost:3000)
+pnpm build            # Build static site for production
+pnpm preview          # Preview production build
+```
+
+### Newsletter Generation
+```bash
+pnpm newsletter       # Generate newsletter (requires ANTHROPIC_API_KEY in .env)
+```
+
+This command:
+- Fetches content from sources defined in `config/sources.json`
+- Uses Claude AI to generate a curated newsletter
+- Saves output to `content/newsletters/{date}-{slug}.md` with frontmatter
+
+### Testing
+```bash
+# Unit tests (Vitest)
+pnpm test             # Run tests once
+pnpm test:watch       # Watch mode
+pnpm test:ui          # UI mode
+pnpm test -- path/to/test.ts  # Run specific test file
+
+# E2E tests (Playwright)
+pnpm e2e              # Run e2e tests
+pnpm e2e:headed       # Run with browser visible
+pnpm e2e:ui           # Interactive UI mode
+pnpm e2e:debug        # Debug mode
+```
+
+### Linting & Type Checking
+```bash
+pnpm lint             # Run oxlint and eslint
+pnpm lint:fix         # Auto-fix linting issues
 pnpm typecheck        # Run TypeScript type checking
 ```
 
-### Code Quality
+**Important**: TypeScript is configured with very strict settings including `noUnusedLocals`, `noUnusedParameters`, `exactOptionalPropertyTypes`, and `noPropertyAccessFromIndexSignature`.
+
+## Architecture Overview
+
+### Newsletter Generation Pipeline
+
+The newsletter generation follows a multi-stage pipeline architecture:
+
+1. **Resource Registry System** (`scripts/core/resources/`)
+   - `registry.ts` - Central registry that manages multiple content source adapters
+   - `adapters/` - Source-specific implementations (Reddit, GitHub, RSS, Dev.to, Hacker News)
+   - Each adapter implements the `Resource` interface and returns normalized `Item[]` data
+   - Supports graceful degradation: if one source fails, others continue
+
+2. **LLM Abstraction Layer** (`scripts/core/llm/`)
+   - `LLMClient.ts` - Common interface for AI providers
+   - `providers/anthropic.ts` and `providers/openai.ts` - Provider-specific implementations
+   - Supports multiple models via environment variables (`LLM_PROVIDER`, `ANTHROPIC_MODEL`, `OPENAI_MODEL`)
+
+3. **Newsletter Pipeline** (`scripts/pipelines/newsletter.ts`)
+   - Orchestrates the full generation flow:
+     1. Load configs from `config/` directory
+     2. Collect items from all registered sources
+     3. Group items by category (articles, repos, discussions, news)
+     4. Apply priority-based filtering (priority 1-5)
+     5. Format context data for AI
+     6. Generate newsletter using Claude with system + user prompts
+     7. Return markdown with usage statistics
+
+4. **Configuration System** (`schemas/config.ts`, `scripts/utils/config-loader.ts`)
+   - Zod schemas validate all configuration files
+   - Three config files: `newsletter.json`, `sources.json`, `prompts/system.md`
+   - Config loader provides centralized validation and error handling
+
+### Frontend Architecture (Nuxt 4)
+
+1. **Pages** (`app/pages/`)
+   - `index.vue` - Homepage
+   - `newsletters/index.vue` - Archive page listing all newsletters
+   - `newsletters/[...slug].vue` - Individual newsletter view
+
+2. **Content Collection** (`content.config.ts`)
+   - Nuxt Content v3 with typed collections
+   - Newsletters stored in `content/newsletters/` with frontmatter (title, date, description, author, tags)
+
+3. **RSS Feed** (`server/routes/rss.xml.ts`)
+   - Server route that generates RSS feed from newsletter collection
+   - Uses `feed` package to generate valid RSS 2.0
+   - Queries newsletters using Nuxt Content's `queryCollection` API
+
+### Source Priority System
+
+Sources use a priority-based filtering system (1-5):
+- **5 (Critical)**: Always included first
+- **4 (High)**: Strong preference
+- **3 (Normal)**: Default
+- **2 (Low)**: Included if space available
+- **1 (Minimal)**: Only if very few other items
+
+Within each priority level, items are sorted by engagement metrics (stars, reactions, upvotes, comments).
+
+## Configuration Files
+
+### `config/newsletter.json`
+Main newsletter metadata (title, description, author, siteUrl, topic, slug, language)
+
+### `config/sources.json`
+Array of content sources, each with:
+- `id` - Unique identifier
+- `kind` - Type: `rss`, `atom`, `json`, `github`
+- `url` - Source URL
+- `tag` - Display name
+- `limit` - Max items to fetch
+- `priority` - Priority level (1-5)
+
+### `config/prompts/system.md`
+Claude system prompt that defines newsletter generation behavior. Use `{TOPIC}` placeholder for dynamic topic replacement.
+
+## Testing Strategy
+
+### Unit Tests (`tests/`)
+- Configuration loading and validation (`config-loader.test.ts`, `config-schema.test.ts`)
+- Newsletter pipeline logic (`newsletter.test.ts`)
+- Priority sorting behavior (`priority-sorting.test.ts`)
+- Error handling (`validation-errors.test.ts`, `api-key-validation.test.ts`)
+
+**Coverage thresholds**: 60% lines, 60% functions, 58% branches
+
+### E2E Tests (`tests/e2e/`)
+- Playwright tests for user-facing functionality
+- Base URL: `http://localhost:3000`
+- Runs dev server automatically unless `SKIP_WEBSERVER=1`
+
+## Important Patterns
+
+### Environment Variables
 ```bash
-pnpm lint             # Run ESLint with oxlint
-pnpm lint:type-aware  # Run oxlint with type checking
+# Required for newsletter generation
+ANTHROPIC_API_KEY=sk-ant-...
+# or
+OPENAI_API_KEY=sk-...
+
+# Optional
+LLM_PROVIDER=anthropic  # or 'openai' (default: anthropic)
+ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
+OPENAI_MODEL=gpt-4-turbo
 ```
 
-### Testing
-```bash
-pnpm test             # Run Vitest tests once
-pnpm test:watch       # Run tests in watch mode (use during dev)
-pnpm test:ui          # Open Vitest UI for debugging
-```
+### Adding New Content Sources
 
-### Newsletter Generator
-```bash
-pnpm newsletter       # Generate weekly Vue.js newsletter
-```
+To add a new content source:
 
-## Pull Request Review Criteria
+1. Create adapter in `scripts/core/resources/adapters/`
+2. Implement `Resource` interface from `types.ts`
+3. Register in `registry.ts` based on `kind` field
+4. Add to `config/sources.json`
 
-When reviewing PRs (or when you complete work), verify:
+### Modifying Newsletter Format
 
-### Code Quality
-- [ ] Follows TypeScript and style conventions
-- [ ] No `any` types without justification
-- [ ] Return types specified on exported functions
-- [ ] Proper error handling (neverthrow for expected errors)
+1. Edit system prompt: `config/prompts/system.md`
+2. Adjust context formatting in `scripts/pipelines/newsletter.ts` (`renderSections`)
+3. Update frontmatter generation in `scripts/generate-newsletter.ts` (`save` function)
 
-### Testing
-- [ ] New features have tests
-- [ ] Bug fixes have regression tests
-- [ ] Tests are deterministic (no flaky tests)
-- [ ] All tests pass (`pnpm test`)
+## GitHub Actions Workflow
 
-### Architecture
-- [ ] Code is in the right directory (`/app`, `/scripts`, or `/tests`)
-- [ ] Follows existing patterns
-- [ ] Zod schemas at API boundaries
-- [ ] Shared schemas in `/schemas` (not duplicated)
+`.github/workflows/generate-newsletter.yml` runs on schedule:
+- Default: Every Monday at 9:00 AM UTC
+- Can be triggered manually from Actions tab
+- Requires `ANTHROPIC_API_KEY` secret in repository settings
+- Automatically commits generated newsletters to `content/newsletters/`
 
-### Documentation
-- [ ] CLAUDE.md updated if architecture changed
-- [ ] Complex logic has inline comments
-- [ ] Public APIs have JSDoc comments
+## Deployment
 
-## Architecture
-
-### Directory Structure
-
-```
-/app                  # Nuxt 4 web application (see /app/CLAUDE.md)
-/scripts              # Newsletter generator (see /scripts/CLAUDE.md)
-/tests                # Test infrastructure (see /tests/CLAUDE.md)
-/schemas              # Shared Zod schemas (used by both app and tests)
-/newsletters          # Generated newsletter output
-```
-
-### Key Architectural Patterns
-
-**Shared Schemas (`/schemas`)**
-- All Zod schemas live in `/schemas`, not in `/tests/schemas`
-- Application code uses schemas for runtime validation (`.parse()`)
-- Test code uses schemas for type-safe test data
-- Single source of truth prevents drift
-
-**Resource Adapters**
-- Each external API has an adapter in `/scripts/core/resources/adapters`
-- Adapters validate responses using shared Zod schemas
-- Validation errors are logged with `[resource-id]` prefix
-- Adapters fail fast on validation errors (throw, don't return empty arrays)
-
-**Testing with Collections**
-- Use `@msw/data` collections instead of factory functions
-- Tests explicitly seed collections before running
-- MSW handlers query collections (thin layer)
-- Collections are cleared after each test for isolation
-- See `/tests/CLAUDE.md` for detailed testing patterns
-
-## Key Technical Decisions
-
-**Package Manager**: Use `pnpm` only (locked to v10.19.0)
-
-**TypeScript**: Project uses Nuxt's generated TypeScript config (`.nuxt/tsconfig.*.json`)
-
-**Error Handling**: Use `neverthrow` Result pattern for expected errors, throw for unexpected
-
-**Environment Variables**: Required `.env` with `ANTHROPIC_API_KEY` for newsletter generation
+Static site can be deployed to Vercel, Netlify, Cloudflare Pages:
+- Build command: `pnpm build`
+- Output directory: `.output/public`
+- Prerendering enabled for `/` and `/rss.xml`
