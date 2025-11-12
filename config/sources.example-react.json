@@ -1,0 +1,33 @@
+[
+  {
+    "id": "reddit-reactjs",
+    "kind": "atom",
+    "url": "https://www.reddit.com/r/reactjs.rss",
+    "tag": "Reddit r/reactjs",
+    "limit": 10,
+    "priority": 3
+  },
+  {
+    "id": "rss-react-blog",
+    "kind": "rss",
+    "url": "https://react.dev/rss.xml",
+    "tag": "React Blog",
+    "limit": 10,
+    "priority": 5
+  },
+  {
+    "id": "github-react",
+    "kind": "github",
+    "url": "https://api.github.com/search/repositories?q=react+in:name,description+pushed:>2020-01-01&sort=updated&order=desc&per_page=5",
+    "limit": 5,
+    "priority": 3
+  },
+  {
+    "id": "devto-react",
+    "kind": "json",
+    "url": "https://dev.to/api/articles?tag=react&top=7&per_page=20",
+    "tag": "DEV.to #react",
+    "limit": 10,
+    "priority": 3
+  }
+]
