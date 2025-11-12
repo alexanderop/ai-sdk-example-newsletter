@@ -18,12 +18,15 @@ export class HNResource implements Resource {
     this.limit = cfg.limit ?? 10
     this.priority = validatePriority(cfg.priority, cfg.id)
 
+    // Calculate Unix timestamp for 7 days ago
+    const sevenDaysAgo = Math.floor(Date.now() / 1000) - (7 * 24 * 60 * 60)
+
     // Use cfg.url if provided, otherwise default to vue query
     if (cfg.url) {
       this.url = cfg.url
     } else {
-      const q = encodeURIComponent('vue')
-      this.url = `https://hn.algolia.com/api/v1/search?query=${q}&tags=story`
+      const q = encodeURIComponent('vue OR nuxt OR vite')
+      this.url = `https://hn.algolia.com/api/v1/search?query=${q}&tags=story&numericFilters=created_at_i>${sevenDaysAgo}`
     }
   }
 
