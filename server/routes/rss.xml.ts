@@ -1,14 +1,27 @@
 import { Feed } from 'feed'
-import { readFile } from 'node:fs/promises'
-import { join } from 'node:path'
 import { queryCollection } from '@nuxt/content/server'
-import { NewsletterConfigSchema } from '../../schemas/config'
+import { loadNewsletterConfig } from '../../scripts/utils/config-loader'
+import type { NewsletterConfig } from '../../schemas/config'
+
+// Cache the config at module level to avoid repeated file reads
+let cachedConfig: NewsletterConfig | null = null
 
 export default defineEventHandler(async (event) => {
-  // Load newsletter config
-  const configPath = join(process.cwd(), 'config', 'newsletter.json')
-  const configContent = await readFile(configPath, 'utf-8')
-  const config = NewsletterConfigSchema.parse(JSON.parse(configContent))
+  // Load newsletter config with caching
+  let config: NewsletterConfig
+  try {
+    if (cachedConfig) {
+      config = cachedConfig
+    } else {
+      config = await loadNewsletterConfig()
+      cachedConfig = config
+    }
+  } catch (error) {
+    throw createError({
+      statusCode: 500,
+      message: `Failed to load newsletter configuration: ${error instanceof Error ? error.message : String(error)}`
+    })
+  }
 
   const feed = new Feed({
     title: config.title,

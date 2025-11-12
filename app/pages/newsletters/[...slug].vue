@@ -16,9 +16,14 @@ if (!newsletter.value) {
   })
 }
 
+// Load newsletter config for dynamic branding
+const { data: config } = await useAsyncData('newsletter-config', () =>
+  $fetch('/api/config')
+)
+
 // SEO meta tags
 useHead({
-  title: `${newsletter.value.title} - Vue.js Weekly`,
+  title: `${newsletter.value.title} - ${config.value?.title || 'Newsletter'}`,
   meta: [
     { name: 'description', content: newsletter.value.description || newsletter.value.title },
     { property: 'og:title', content: newsletter.value.title },

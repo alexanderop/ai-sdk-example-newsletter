@@ -4,35 +4,38 @@
 - generic [ref=e2]:
   - banner [ref=e3]:
     - generic [ref=e4]:
-      - generic [ref=e5]:
-        - link [ref=e6] [cursor=pointer]:
-          - /url: /
-          - img [ref=e7]
-        - button "Starter" [ref=e15]:
-          - generic [ref=e16]: Starter
-      - link "GitHub" [ref=e20] [cursor=pointer]:
-        - /url: https://github.com/nuxt-ui-templates/starter
-  - generic [ref=e24]:
-    - generic [ref=e25]:
-      - heading "Newsletter Archive" [level=1] [ref=e26]
-      - paragraph [ref=e27]: Browse all past newsletters
-    - generic [ref=e28]:
-      - generic [ref=e32]:
-        - heading "Vue.js Weekly Newsletter" [level=2] [ref=e33]
-        - time [ref=e34]: November 12, 2025
-        - paragraph [ref=e35]: Weekly Vue.js news and community updates
-      - generic [ref=e40]:
-        - heading "Vue.js Weekly Newsletter" [level=2] [ref=e41]
-        - time [ref=e42]: November 11, 2025
-        - paragraph [ref=e43]: Weekly Vue.js news and community updates
-      - generic [ref=e48]:
-        - heading "Vue.js Weekly Newsletter" [level=2] [ref=e49]
-        - time [ref=e50]: November 9, 2025
-        - paragraph [ref=e51]: Weekly Vue.js news and community updates
-  - separator [ref=e53]
-  - contentinfo [ref=e58]:
-    - generic [ref=e59]:
-      - link "GitHub" [ref=e61] [cursor=pointer]:
-        - /url: https://github.com/nuxt-ui-templates/starter
-      - paragraph [ref=e64]: Built with Nuxt UI • © 2025
+      - link "Vue.js Weekly" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e9]: Vue.js Weekly
+      - link "GitHub" [ref=e12] [cursor=pointer]:
+        - /url: https://github.com/alexanderopalic/ai-sdk-example-newsletter
+  - generic [ref=e16]:
+    - generic [ref=e17]:
+      - heading "Newsletter Archive" [level=1] [ref=e18]
+      - paragraph [ref=e19]: Browse all past newsletters
+    - generic [ref=e20]:
+      - link "Vue.js Weekly Newsletter November 12, 2025 Weekly Vue.js news and community updates" [ref=e23] [cursor=pointer]:
+        - /url: /newsletters/2025-11-12-vue-weekly
+        - generic [ref=e25]:
+          - heading "Vue.js Weekly Newsletter" [level=2] [ref=e26]
+          - time [ref=e27]: November 12, 2025
+          - paragraph [ref=e28]: Weekly Vue.js news and community updates
+      - link "Vue.js Weekly Newsletter November 11, 2025 Weekly Vue.js news and community updates" [ref=e32] [cursor=pointer]:
+        - /url: /newsletters/2025-11-11-vue-weekly
+        - generic [ref=e34]:
+          - heading "Vue.js Weekly Newsletter" [level=2] [ref=e35]
+          - time [ref=e36]: November 11, 2025
+          - paragraph [ref=e37]: Weekly Vue.js news and community updates
+      - link "Vue.js Weekly Newsletter November 9, 2025 Weekly Vue.js news and community updates" [ref=e41] [cursor=pointer]:
+        - /url: /newsletters/2025-11-09-vue-weekly
+        - generic [ref=e43]:
+          - heading "Vue.js Weekly Newsletter" [level=2] [ref=e44]
+          - time [ref=e45]: November 9, 2025
+          - paragraph [ref=e46]: Weekly Vue.js news and community updates
+  - separator [ref=e48]
+  - contentinfo [ref=e53]:
+    - generic [ref=e54]:
+      - link "GitHub" [ref=e56] [cursor=pointer]:
+        - /url: https://github.com/alexanderopalic/ai-sdk-example-newsletter
+      - paragraph [ref=e59]: Vue.js Weekly • © 2025
 ```

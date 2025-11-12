@@ -44,7 +44,23 @@ test.describe('Newsletter Archive Page', () => {
     await firstCard.hover()
 
     // Check if the card has cursor pointer (indicates it's clickable)
-    const cursor = await firstCard.evaluate((el) => window.getComputedStyle(el).cursor)
+    const cursor = await firstCard.evaluate(el => window.getComputedStyle(el).cursor)
     expect(cursor).toBe('pointer')
+  })
+
+  test('should display only one H1 title on newsletter detail page', async ({ page }) => {
+    await page.goto('/newsletters')
+    await page.waitForSelector('h1:has-text("Newsletter Archive")')
+
+    // Click on the first newsletter
+    const firstCard = page.locator('[data-testid="newsletter-card"]').first()
+    await firstCard.click()
+    await page.waitForLoadState('networkidle')
+
+    // Count H1 elements on the detail page
+    const h1Count = await page.locator('h1').count()
+
+    // There should be exactly one H1 (the title in the header)
+    expect(h1Count).toBe(1)
   })
 })

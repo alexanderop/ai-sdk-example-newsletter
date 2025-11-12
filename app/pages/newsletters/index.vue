@@ -6,13 +6,15 @@ const { data: newsletters } = await useAsyncData('newsletters', () =>
     .all()
 )
 
-// Debug: Log newsletter data to see paths
-console.log('Newsletters data:', newsletters.value)
+// Load newsletter config for dynamic branding
+const { data: config } = await useAsyncData('newsletter-config', () =>
+  $fetch('/api/config')
+)
 
 useHead({
-  title: 'Newsletter Archive - Vue.js Weekly',
+  title: `Newsletter Archive - ${config.value?.title || 'Newsletter'}`,
   meta: [
-    { name: 'description', content: 'Browse all past Vue.js Weekly newsletters' }
+    { name: 'description', content: `Browse all past ${config.value?.title || 'newsletter'} newsletters` }
   ]
 })
 
