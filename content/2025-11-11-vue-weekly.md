@@ -6,7 +6,7 @@ author: Vue.js Weekly Team
 tags: [vue, nuxt, javascript]
 ---
 
-**November 12, 2025**
+**November 11, 2025**
 
 ---
 

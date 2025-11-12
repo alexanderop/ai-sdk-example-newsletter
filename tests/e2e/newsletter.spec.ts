@@ -71,6 +71,12 @@ test.describe('Newsletter Platform E2E Tests', () => {
   })
 
   test('RSS feed is accessible', async ({ page }) => {
+    // Load newsletter config to verify dynamic content
+    const configResponse = await page.goto(`${BASE_URL}/api/config`)
+    expect(configResponse?.status()).toBe(200)
+    const config = await configResponse?.json()
+    const newsletterTitle = config?.title || 'Newsletter'
+
     const response = await page.goto(`${BASE_URL}/rss.xml`)
 
     // Check response is successful
@@ -84,7 +90,7 @@ test.describe('Newsletter Platform E2E Tests', () => {
     const content = await response?.text()
     expect(content).toContain('<?xml')
     expect(content).toContain('<rss')
-    expect(content).toContain('Vue.js Weekly')
+    expect(content).toContain(newsletterTitle)
   })
 
   test('navigation between pages works', async ({ page }) => {

@@ -188,5 +188,5 @@ To add a new content source:
 
 Static site can be deployed to Vercel, Netlify, Cloudflare Pages:
 - Build command: `pnpm build`
-- Output directory: `dist` (or `.output/public` for Nuxt)
+- Output directory: `.output/public`
 - Prerendering enabled for `/` and `/rss.xml`
