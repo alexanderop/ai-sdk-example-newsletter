@@ -1,0 +1,59 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - link [ref=e6] [cursor=pointer]:
+            - /url: /
+            - img [ref=e7]
+          - button "Starter" [ref=e15]:
+            - generic [ref=e16]: Starter
+        - generic [ref=e18]:
+          - button "Switch to dark mode" [ref=e19]
+          - link "GitHub" [ref=e21] [cursor=pointer]:
+            - /url: https://github.com/nuxt-ui-templates/starter
+    - generic [ref=e25]:
+      - generic [ref=e26]:
+        - heading "Newsletter Archive" [level=1] [ref=e27]
+        - paragraph [ref=e28]: Browse all past newsletters
+      - generic [ref=e29]:
+        - generic [ref=e33]:
+          - heading "Vue.js Weekly Newsletter" [level=2] [ref=e34]
+          - time [ref=e35]: November 12, 2025
+          - paragraph [ref=e36]: Weekly Vue.js news and community updates
+        - generic [ref=e41]:
+          - heading "Vue.js Weekly Newsletter" [level=2] [ref=e42]
+          - time [ref=e43]: November 11, 2025
+          - paragraph [ref=e44]: Weekly Vue.js news and community updates
+        - generic [ref=e49]:
+          - heading "Vue.js Weekly Newsletter" [level=2] [ref=e50]
+          - time [ref=e51]: November 9, 2025
+          - paragraph [ref=e52]: Weekly Vue.js news and community updates
+    - separator [ref=e54]
+    - contentinfo [ref=e59]:
+      - generic [ref=e60]:
+        - link "GitHub" [ref=e62] [cursor=pointer]:
+          - /url: https://github.com/nuxt-ui-templates/starter
+        - paragraph [ref=e65]: Built with Nuxt UI • © 2025
+  - region "Notifications (F8)":
+    - list
+  - generic:
+    - img
+  - generic:
+    - generic:
+      - generic:
+        - button "Go to parent" [disabled]
+        - button "Open in editor"
+        - button "Close"
+  - generic [ref=e66]:
+    - button "Toggle Nuxt DevTools" [ref=e67] [cursor=pointer]:
+      - img [ref=e68]
+    - generic "Page load time" [ref=e71]:
+      - generic [ref=e72]: "51"
+      - generic [ref=e73]: ms
+    - button "Toggle Component Inspector" [ref=e75] [cursor=pointer]:
+      - img [ref=e76]
+```

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { NewsletterConfigSchema, SourceConfigSchema } from '../schemas/config';
+import { describe, it, expect } from 'vitest'
+import { NewsletterConfigSchema, SourceConfigSchema } from '../schemas/config'
 
 describe('NewsletterConfigSchema', () => {
   it('validates valid newsletter config', () => {
@@ -11,32 +11,32 @@ describe('NewsletterConfigSchema', () => {
       topic: 'Vue.js',
       slug: 'vue-weekly',
       language: 'en'
-    };
+    }
 
-    const result = NewsletterConfigSchema.parse(config);
-    expect(result).toEqual(config);
-  });
+    const result = NewsletterConfigSchema.parse(config)
+    expect(result).toEqual(config)
+  })
 
   it('requires title, description, and siteUrl', () => {
     const config = {
       author: 'John Doe'
-    };
+    }
 
-    expect(() => NewsletterConfigSchema.parse(config)).toThrow();
-  });
+    expect(() => NewsletterConfigSchema.parse(config)).toThrow()
+  })
 
   it('uses default values for optional fields', () => {
     const config = {
       title: 'Test Newsletter',
       description: 'Test description',
       siteUrl: 'https://example.com'
-    };
+    }
 
-    const result = NewsletterConfigSchema.parse(config);
-    expect(result.language).toBe('en');
-    expect(result.author).toBeDefined();
-  });
-});
+    const result = NewsletterConfigSchema.parse(config)
+    expect(result.language).toBe('en')
+    expect(result.author).toBeDefined()
+  })
+})
 
 describe('SourceConfigSchema', () => {
   it('validates RSS source config', () => {
@@ -47,11 +47,11 @@ describe('SourceConfigSchema', () => {
       tag: 'Example RSS',
       limit: 10,
       priority: 3
-    };
+    }
 
-    const result = SourceConfigSchema.parse(source);
-    expect(result).toEqual(source);
-  });
+    const result = SourceConfigSchema.parse(source)
+    expect(result).toEqual(source)
+  })
 
   it('uses default priority of 3', () => {
     const source = {
@@ -59,11 +59,11 @@ describe('SourceConfigSchema', () => {
       kind: 'rss',
       url: 'https://example.com/feed.rss',
       limit: 10
-    };
+    }
 
-    const result = SourceConfigSchema.parse(source);
-    expect(result.priority).toBe(3);
-  });
+    const result = SourceConfigSchema.parse(source)
+    expect(result.priority).toBe(3)
+  })
 
   it('validates priority is between 1 and 5', () => {
     const source = {
@@ -72,8 +72,8 @@ describe('SourceConfigSchema', () => {
       url: 'https://example.com/feed.rss',
       limit: 10,
       priority: 6
-    };
+    }
 
-    expect(() => SourceConfigSchema.parse(source)).toThrow();
-  });
-});
+    expect(() => SourceConfigSchema.parse(source)).toThrow()
+  })
+})

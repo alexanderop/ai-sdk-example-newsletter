@@ -1,11 +1,14 @@
-import { defineContentConfig, defineCollection } from '@nuxt/content';
-import { z } from 'zod';
+import { defineContentConfig, defineCollection } from '@nuxt/content'
+import { z } from 'zod'
 
 export default defineContentConfig({
   collections: {
     newsletters: defineCollection({
       type: 'page',
-      source: 'newsletters/*.md',
+      source: {
+        include: '*.md',
+        prefix: '/newsletters'
+      },
       schema: z.object({
         title: z.string(),
         date: z.string(),
@@ -15,4 +18,4 @@ export default defineContentConfig({
       })
     })
   }
-});
+})

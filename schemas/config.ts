@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 /**
  * Main newsletter configuration schema
@@ -11,9 +11,9 @@ export const NewsletterConfigSchema = z.object({
   topic: z.string().optional(),
   slug: z.string().optional(),
   language: z.string().default('en')
-});
+})
 
-export type NewsletterConfig = z.infer<typeof NewsletterConfigSchema>;
+export type NewsletterConfig = z.infer<typeof NewsletterConfigSchema>
 
 /**
  * Source configuration schema for content fetching
@@ -25,13 +25,13 @@ export const SourceConfigSchema = z.object({
   tag: z.string().optional(),
   limit: z.number().int().positive('Limit must be a positive integer'),
   priority: z.number().int().min(1).max(5).default(3)
-});
+})
 
-export type SourceConfig = z.infer<typeof SourceConfigSchema>;
+export type SourceConfig = z.infer<typeof SourceConfigSchema>
 
 /**
  * Array of source configs
  */
-export const SourcesConfigSchema = z.array(SourceConfigSchema);
+export const SourcesConfigSchema = z.array(SourceConfigSchema)
 
-export type SourcesConfig = z.infer<typeof SourcesConfigSchema>;
+export type SourcesConfig = z.infer<typeof SourcesConfigSchema>

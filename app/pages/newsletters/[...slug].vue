@@ -1,19 +1,19 @@
 <script setup lang="ts">
-const route = useRoute();
+const route = useRoute()
 
 // Query single newsletter by route path
 const { data: newsletter } = await useAsyncData(route.path, () =>
   queryCollection('newsletters')
     .path(route.path)
     .first()
-);
+)
 
 // Handle 404
 if (!newsletter.value) {
   throw createError({
     statusCode: 404,
     message: 'Newsletter not found'
-  });
+  })
 }
 
 // SEO meta tags
@@ -25,21 +25,24 @@ useHead({
     { property: 'og:type', content: 'article' },
     { property: 'article:published_time', content: newsletter.value.date }
   ]
-});
+})
 
 // Format date helper
 function formatDate(dateString: string): string {
-  const date = new Date(dateString);
+  const date = new Date(dateString)
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
-  });
+  })
 }
 </script>
 
 <template>
-  <UContainer v-if="newsletter" class="py-12">
+  <UContainer
+    v-if="newsletter"
+    class="py-12"
+  >
     <article class="max-w-4xl mx-auto">
       <!-- Back button -->
       <UButton

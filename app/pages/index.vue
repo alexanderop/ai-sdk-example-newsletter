@@ -12,7 +12,7 @@ useHead({
       href: '/rss.xml'
     }
   ]
-});
+})
 </script>
 
 <template>

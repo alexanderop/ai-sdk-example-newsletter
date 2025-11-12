@@ -4,23 +4,26 @@ const { data: newsletters } = await useAsyncData('newsletters', () =>
   queryCollection('newsletters')
     .order('date', 'DESC')
     .all()
-);
+)
+
+// Debug: Log newsletter data to see paths
+console.log('Newsletters data:', newsletters.value)
 
 useHead({
   title: 'Newsletter Archive - Vue.js Weekly',
   meta: [
     { name: 'description', content: 'Browse all past Vue.js Weekly newsletters' }
   ]
-});
+})
 
 // Format date helper
 function formatDate(dateString: string): string {
-  const date = new Date(dateString);
+  const date = new Date(dateString)
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
-  });
+  })
 }
 </script>
 
@@ -36,43 +39,54 @@ function formatDate(dateString: string): string {
         </p>
       </div>
 
-      <div v-if="newsletters && newsletters.length > 0" class="space-y-4">
+      <div
+        v-if="newsletters && newsletters.length > 0"
+        class="space-y-4"
+      >
         <UCard
           v-for="newsletter in newsletters"
           :key="newsletter.id"
-          :to="newsletter.path"
-          class="hover:shadow-lg transition-shadow p-6"
+          :data-testid="'newsletter-card'"
+          class="hover:shadow-lg transition-shadow"
         >
-          <div class="flex justify-between items-start">
-            <div class="flex-1">
-              <h2 class="text-xl font-semibold mb-2">
-                {{ newsletter.title }}
-              </h2>
+          <NuxtLink
+            :to="newsletter.path"
+            class="block p-6"
+          >
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <h2 class="text-xl font-semibold mb-2">
+                  {{ newsletter.title }}
+                </h2>
 
-              <time
-                :datetime="newsletter.date"
-                class="text-sm text-gray-500 dark:text-gray-400"
-              >
-                {{ formatDate(newsletter.date) }}
-              </time>
+                <time
+                  :datetime="newsletter.date"
+                  class="text-sm text-gray-500 dark:text-gray-400"
+                >
+                  {{ formatDate(newsletter.date) }}
+                </time>
 
-              <p
-                v-if="newsletter.description"
-                class="mt-2 text-gray-600 dark:text-gray-300"
-              >
-                {{ newsletter.description }}
-              </p>
+                <p
+                  v-if="newsletter.description"
+                  class="mt-2 text-gray-600 dark:text-gray-300"
+                >
+                  {{ newsletter.description }}
+                </p>
+              </div>
+
+              <UIcon
+                name="i-heroicons-arrow-right"
+                class="text-gray-400 ml-4 flex-shrink-0"
+              />
             </div>
-
-            <UIcon
-              name="i-heroicons-arrow-right"
-              class="text-gray-400 ml-4 flex-shrink-0"
-            />
-          </div>
+          </NuxtLink>
         </UCard>
       </div>
 
-      <UCard v-else class="p-6">
+      <UCard
+        v-else
+        class="p-6"
+      >
         <p class="text-gray-600 dark:text-gray-400">
           No newsletters published yet. Check back soon!
         </p>
