@@ -1,1 +1,57 @@
-[]
+[
+  {
+    "id": "reddit-vuejs",
+    "kind": "atom",
+    "url": "https://www.reddit.com/r/vuejs.rss",
+    "tag": "Reddit r/vuejs",
+    "limit": 10,
+    "priority": 3
+  },
+  {
+    "id": "reddit-nuxt",
+    "kind": "atom",
+    "url": "https://www.reddit.com/r/Nuxt.rss",
+    "tag": "Reddit r/Nuxt",
+    "limit": 10,
+    "priority": 3
+  },
+  {
+    "id": "rss-vue-blog",
+    "kind": "rss",
+    "url": "https://blog.vuejs.org/feed.rss",
+    "tag": "Vue.js Blog",
+    "limit": 10,
+    "priority": 5
+  },
+  {
+    "id": "rss-nuxt-blog",
+    "kind": "rss",
+    "url": "https://nuxt.com/blog/rss.xml",
+    "tag": "Nuxt Blog",
+    "limit": 10,
+    "priority": 5
+  },
+  {
+    "id": "github-vue",
+    "kind": "github",
+    "url": "https://api.github.com/search/repositories?q=vue+in:name,description+pushed:>2020-01-01&sort=updated&order=desc&per_page=5",
+    "limit": 5,
+    "priority": 3
+  },
+  {
+    "id": "devto-vue",
+    "kind": "json",
+    "url": "https://dev.to/api/articles?tag=vue&top=7&per_page=20",
+    "tag": "DEV.to #vue",
+    "limit": 10,
+    "priority": 3
+  },
+  {
+    "id": "devto-nuxt",
+    "kind": "json",
+    "url": "https://dev.to/api/articles?tag=nuxt&top=7&per_page=20",
+    "tag": "DEV.to #nuxt",
+    "limit": 10,
+    "priority": 3
+  }
+]

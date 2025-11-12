@@ -1,76 +1,65 @@
+<script setup lang="ts">
+useHead({
+  title: 'Vue.js Weekly Newsletter',
+  meta: [
+    { name: 'description', content: 'Weekly Vue.js news and community updates' }
+  ],
+  link: [
+    {
+      rel: 'alternate',
+      type: 'application/rss+xml',
+      title: 'RSS Feed',
+      href: '/rss.xml'
+    }
+  ]
+});
+</script>
+
 <template>
-  <div>
-    <UPageHero
-      title="Nuxt Starter Template"
-      description="A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours."
-      :links="[{
-        label: 'Get started',
-        to: 'https://ui.nuxt.com/docs/getting-started/installation/nuxt',
-        target: '_blank',
-        trailingIcon: 'i-lucide-arrow-right',
-        size: 'xl'
-      }, {
-        label: 'Use this template',
-        to: 'https://github.com/nuxt-ui-templates/starter',
-        target: '_blank',
-        icon: 'i-simple-icons-github',
-        size: 'xl',
-        color: 'neutral',
-        variant: 'subtle'
-      }]"
-    />
+  <UContainer class="py-12">
+    <div class="max-w-3xl mx-auto text-center">
+      <h1 class="text-4xl font-bold mb-4">
+        Vue.js Weekly Newsletter
+      </h1>
 
-    <UPageSection
-      id="features"
-      title="Everything you need to build modern Nuxt apps"
-      description="Start with a solid foundation. This template includes all the essentials for building production-ready applications with Nuxt UI's powerful component system."
-      :features="[{
-        icon: 'i-lucide-rocket',
-        title: 'Production-ready from day one',
-        description: 'Pre-configured with TypeScript, ESLint, Tailwind CSS, and all the best practices. Focus on building features, not setting up tooling.'
-      }, {
-        icon: 'i-lucide-palette',
-        title: 'Beautiful by default',
-        description: 'Leveraging Nuxt UI\'s design system with automatic dark mode, consistent spacing, and polished components that look great out of the box.'
-      }, {
-        icon: 'i-lucide-zap',
-        title: 'Lightning fast',
-        description: 'Optimized for performance with SSR/SSG support, automatic code splitting, and edge-ready deployment. Your users will love the speed.'
-      }, {
-        icon: 'i-lucide-blocks',
-        title: '100+ components included',
-        description: 'Access Nuxt UI\'s comprehensive component library. From forms to navigation, everything is accessible, responsive, and customizable.'
-      }, {
-        icon: 'i-lucide-code-2',
-        title: 'Developer experience first',
-        description: 'Auto-imports, hot module replacement, and TypeScript support. Write less boilerplate and ship more features.'
-      }, {
-        icon: 'i-lucide-shield-check',
-        title: 'Built for scale',
-        description: 'Enterprise-ready architecture with proper error handling, SEO optimization, and security best practices built-in.'
-      }]"
-    />
+      <p class="text-xl text-gray-600 dark:text-gray-400 mb-8">
+        Stay up-to-date with the latest Vue.js news, articles, and community updates.
+      </p>
 
-    <UPageSection>
-      <UPageCTA
-        title="Ready to build your next Nuxt app?"
-        description="Join thousands of developers building with Nuxt and Nuxt UI. Get this template and start shipping today."
-        variant="subtle"
-        :links="[{
-          label: 'Start building',
-          to: 'https://ui.nuxt.com/docs/getting-started/installation/nuxt',
-          target: '_blank',
-          trailingIcon: 'i-lucide-arrow-right',
-          color: 'neutral'
-        }, {
-          label: 'View on GitHub',
-          to: 'https://github.com/nuxt-ui-templates/starter',
-          target: '_blank',
-          icon: 'i-simple-icons-github',
-          color: 'neutral',
-          variant: 'outline'
-        }]"
-      />
-    </UPageSection>
-  </div>
+      <div class="flex gap-4 justify-center mb-12">
+        <UButton
+          to="/newsletters"
+          size="lg"
+          color="primary"
+        >
+          View Archive
+        </UButton>
+
+        <UButton
+          to="/rss.xml"
+          size="lg"
+          variant="outline"
+          color="gray"
+          icon="i-heroicons-rss"
+        >
+          RSS Feed
+        </UButton>
+      </div>
+
+      <div class="prose dark:prose-invert mx-auto text-left">
+        <h2>About This Newsletter</h2>
+        <p>
+          This newsletter curates the best Vue.js content from across the web,
+          including blog posts, GitHub repositories, community discussions, and more.
+          Published weekly, it helps you stay current with the Vue.js ecosystem.
+        </p>
+
+        <h2>Stay Connected</h2>
+        <p>
+          Subscribe via RSS to never miss an issue. All newsletters are archived
+          and available for browsing anytime.
+        </p>
+      </div>
+    </div>
+  </UContainer>
 </template>
